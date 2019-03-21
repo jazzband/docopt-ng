@@ -25,11 +25,13 @@ Contributors (roughly in chronological order):
 import sys
 import re
 
+from typing import Any, List, Tuple, Union, Dict as TDict, Optional as TOptional
+
 __all__ = ["docopt"]
 __version__ = "0.6.3"
 
 
-def levenshtein_norm(source, target):
+def levenshtein_norm(source: str, target: str) -> float:
     """Calculates the normalized Levenshtein distance between two string
     arguments. The result will be a float in the range [0.0, 1.0], with 1.0
     signifying the biggest possible distance between strings with these lengths
@@ -42,7 +44,7 @@ def levenshtein_norm(source, target):
     return float(distance) / max(len(source), len(target))
 
 
-def levenshtein(source, target, rd_flag=False):
+def levenshtein(source: str, target: str, rd_flag: bool = False) -> int:
     """Computes the Levenshtein
     (https://en.wikipedia.org/wiki/Levenshtein_distance)
     and restricted Damerau-Levenshtein
@@ -113,19 +115,19 @@ class DocoptExit(SystemExit):
 
     """Exit in case user invoked program with incorrect arguments."""
 
-    usage = ""
+    usage: str = ""
 
-    def __init__(self, message="", collected=None, left=None):
+    def __init__(self, message: TOptional[str] = "", collected: TOptional[str] = None, left: TOptional[str] = None) -> None:
         self.collected = collected if collected is not None else []
         self.left = left if left is not None else []
         SystemExit.__init__(self, (message + "\n" + self.usage).strip())
 
 
-class Pattern(object):
-    def __eq__(self, other):
+class Pattern:
+    def __eq__(self, other: Any) -> bool:
         return repr(self) == repr(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(repr(self))
 
     def fix(self):
@@ -133,7 +135,7 @@ class Pattern(object):
         self.fix_repeating_arguments()
         return self
 
-    def fix_identities(self, uniq=None):
+    def fix_identities(self, uniq: TOptional[List["Pattern"]] = None) -> TOptional["Pattern"]:
         """Make pattern-tree tips point to same object if they are equal."""
         if not hasattr(self, "children"):
             return self
@@ -145,7 +147,7 @@ class Pattern(object):
             else:
                 child.fix_identities(uniq)
 
-    def fix_repeating_arguments(self):
+    def fix_repeating_arguments(self) -> "Pattern":
         """Fix elements that should accumulate/increment values."""
         either = [list(child.children) for child in transform(self).children]
         for case in either:
@@ -160,7 +162,7 @@ class Pattern(object):
         return self
 
 
-def transform(pattern):
+def transform(pattern: Pattern) -> "Either":
     """Expand pattern into an (almost) equivalent one, but with single Either.
 
     Example: ((-a | -b) (-c | -d)) => (-a -c | -a -d | -b -c | -b -d)
@@ -191,16 +193,16 @@ class LeafPattern(Pattern):
 
     """Leaf/terminal node of a pattern tree."""
 
-    def __init__(self, name, value=None):
+    def __init__(self, name: str, value: TOptional[Union[str, int, List[Union[str, Pattern]]]] = None) -> None:
         self.name, self.value = name, value
 
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__, self.name, self.value)
 
-    def flat(self, *types):
+    def flat(self, *types: type) -> List[Pattern]:
         return [self] if not types or type(self) in types else []
 
-    def match(self, left, collected=None):
+    def match(self, left: List["LeafPattern"], collected: TOptional[List[Pattern]] = None) -> Tuple[bool, Pattern, List[Pattern]]:
         collected = [] if collected is None else collected
         pos, match = self.single_match(left)
         if match is None:
@@ -224,37 +226,42 @@ class BranchPattern(Pattern):
 
     """Branch/inner node of a pattern tree."""
 
-    def __init__(self, *children):
+    children: List["BranchPattern"]
+
+    def __init__(self, *children: Pattern) -> None:
         self.children = list(children)
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(repr(a) for a in self.children))
 
-    def flat(self, *types):
+    def flat(self, *types: type) -> List[Pattern]:
         if type(self) in types:
             return [self]
         return sum([child.flat(*types) for child in self.children], [])
 
 
+TSingleMatch = Tuple[Union[int, None], Union["Argument", "Command", None]]
+
+
 class Argument(LeafPattern):
-    def single_match(self, left):
+    def single_match(self, left: List["Argument"]) -> TSingleMatch:
         for n, pattern in enumerate(left):
             if type(pattern) is Argument:
                 return n, Argument(self.name, pattern.value)
         return None, None
 
     @classmethod
-    def parse(class_, source):
+    def parse(class_, source: str) -> "Argument":
         name = re.findall(r"(<\S*?>)", source)[0]
         value = re.findall(r"\[default: (.*)\]", source, flags=re.I)
         return class_(name, value[0] if value else None)
 
 
 class Command(Argument):
-    def __init__(self, name, value=False):
+    def __init__(self, name: str, value: bool = False) -> None:
         self.name, self.value = name, value
 
-    def single_match(self, left):
+    def single_match(self, left: List[Argument]) -> TSingleMatch:
         for n, pattern in enumerate(left):
             if type(pattern) is Argument:
                 if pattern.value == self.name:
@@ -265,13 +272,17 @@ class Command(Argument):
 
 
 class Option(LeafPattern):
-    def __init__(self, short=None, long=None, argcount=0, value=False):
+    value: Pattern
+
+    def __init__(
+        self, short: TOptional[str] = None, long: TOptional[str] = None, argcount: TOptional[int] = 0, value: TOptional[Union[str, bool]] = False
+    ) -> None:
         assert argcount in (0, 1)
         self.short, self.long, self.argcount = short, long, argcount
         self.value = None if value is False and argcount else value
 
     @classmethod
-    def parse(class_, option_description):
+    def parse(class_, option_description: str) -> "Option":
         short, long, argcount, value = None, None, 0, False
         options, _, description = option_description.strip().partition("  ")
         options = options.replace(",", " ").replace("=", " ")
@@ -287,22 +298,26 @@ class Option(LeafPattern):
             value = matched[0] if matched else None
         return class_(short, long, argcount, value)
 
-    def single_match(self, left):
+    def single_match(self, left: List[LeafPattern]) -> TSingleMatch:
         for n, pattern in enumerate(left):
             if self.name == pattern.name:
                 return n, pattern
         return None, None
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.long or self.short
 
     def __repr__(self):
         return "Option(%r, %r, %r, %r)" % (self.short, self.long, self.argcount, self.value)
 
 
+TArgumentOption = Union[Argument, Option]
+TMatch = Tuple[bool, TArgumentOption, List[TArgumentOption]]
+
+
 class Required(BranchPattern):
-    def match(self, left, collected=None):
+    def match(self, left: List[TArgumentOption], collected: TOptional[List[BranchPattern]] = None) -> TMatch:
         collected = [] if collected is None else collected
         original_collected = collected
         original_left = left
@@ -314,7 +329,7 @@ class Required(BranchPattern):
 
 
 class Optional(BranchPattern):
-    def match(self, left, collected=None):
+    def match(self, left: List[TArgumentOption], collected: TOptional[List[BranchPattern]] = None) -> TMatch:
         collected = [] if collected is None else collected
         for pattern in self.children:
             m, left, collected = pattern.match(left, collected)
@@ -327,7 +342,7 @@ class OptionsShortcut(Optional):
 
 
 class OneOrMore(BranchPattern):
-    def match(self, left, collected=None):
+    def match(self, left: List[TArgumentOption], collected: TOptional[List[BranchPattern]] = None) -> TMatch:
         assert len(self.children) == 1
         collected = [] if collected is None else collected
         original_collected = collected
@@ -349,7 +364,7 @@ class OneOrMore(BranchPattern):
 
 
 class Either(BranchPattern):
-    def match(self, left, collected=None):
+    def match(self, left: List[TArgumentOption], collected: TOptional[List[BranchPattern]] = None) -> TMatch:
         collected = [] if collected is None else collected
         outcomes = []
         for pattern in self.children:
@@ -361,25 +376,30 @@ class Either(BranchPattern):
         return False, left, collected
 
 
+TSource = Union[str, List[str]]
+
+
 class Tokens(list):
-    def __init__(self, source, error=DocoptExit):
+    error: type
+
+    def __init__(self, source: TSource, error: type = DocoptExit) -> None:
         self += source.split() if hasattr(source, "split") else source
         self.error = error
 
     @staticmethod
-    def from_pattern(source):
+    def from_pattern(source: str) -> "Tokens":
         source = re.sub(r"([\[\]\(\)\|]|\.\.\.)", r" \1 ", source)
         source = [s for s in re.split(r"\s+|(\S*<.*?>)", source) if s]
         return Tokens(source, error=DocoptLanguageError)
 
-    def move(self):
+    def move(self) -> TOptional[str]:
         return self.pop(0) if len(self) else None
 
-    def current(self):
+    def current(self) -> TOptional[str]:
         return self[0] if len(self) else None
 
 
-def parse_long(tokens, options, argv=False):
+def parse_long(tokens: Tokens, options: List[Option], argv: bool = False) -> List[Option]:
     """long ::= '--' chars [ ( ' ' | '=' ) chars ] ;"""
     long, eq, value = tokens.move().partition("=")
     assert long.startswith("--")
@@ -416,7 +436,7 @@ def parse_long(tokens, options, argv=False):
     return [o]
 
 
-def parse_shorts(tokens, options):
+def parse_shorts(tokens: Tokens, options: List[Option]) -> List[Option]:
     """shorts ::= '-' ( chars )* [ [ ' ' ] chars ] ;"""
     token = tokens.move()
     assert token.startswith("-") and not token.startswith("--")
@@ -474,7 +494,7 @@ def parse_shorts(tokens, options):
     return parsed
 
 
-def parse_pattern(source, options):
+def parse_pattern(source: str, options: List[Option]) -> Required:
     tokens = Tokens.from_pattern(source)
     result = parse_expr(tokens, options)
     if tokens.current() is not None:
@@ -482,7 +502,7 @@ def parse_pattern(source, options):
     return Required(*result)
 
 
-def parse_expr(tokens, options):
+def parse_expr(tokens: Tokens, options: List[Option]) -> List[Union[Either, Required]]:
     """expr ::= seq ( '|' seq )* ;"""
     seq = parse_seq(tokens, options)
     if tokens.current() != "|":
@@ -495,7 +515,7 @@ def parse_expr(tokens, options):
     return [Either(*result)] if len(result) > 1 else result
 
 
-def parse_seq(tokens, options):
+def parse_seq(tokens: Tokens, options: List[Option]) -> List[OneOrMore]:
     """seq ::= ( atom [ '...' ] )* ;"""
     result = []
     while tokens.current() not in [None, "]", ")", "|"]:
@@ -507,7 +527,7 @@ def parse_seq(tokens, options):
     return result
 
 
-def parse_atom(tokens, options):
+def parse_atom(tokens: Tokens, options: List[Option]) -> List[Union[LeafPattern, BranchPattern]]:
     """atom ::= '(' expr ')' | '[' expr ']' | 'options'
              | long | shorts | argument | command ;
     """
@@ -533,7 +553,7 @@ def parse_atom(tokens, options):
         return [Command(tokens.move())]
 
 
-def parse_argv(tokens, options, options_first=False):
+def parse_argv(tokens: Tokens, options: List[Option], options_first: bool = False) -> List[TArgumentOption]:
     """Parse command-line argument vector.
 
     If options_first:
@@ -565,7 +585,7 @@ def parse_argv(tokens, options, options_first=False):
     return parsed
 
 
-def parse_defaults(doc, with_args=False):
+def parse_defaults(doc: str) -> List[Option]:
     defaults = []
     for s in parse_section("options:", doc):
         options_literal, _, s = s.partition(":")
@@ -583,19 +603,19 @@ def parse_defaults(doc, with_args=False):
     return defaults
 
 
-def parse_section(name, source):
+def parse_section(name: str, source: str) -> List[str]:
     pattern = re.compile("^([^\n]*" + name + "[^\n]*\n?(?:[ \t].*?(?:\n|$))*)", re.IGNORECASE | re.MULTILINE)
     r = [s.strip() for s in pattern.findall(source) if s.strip().lower() != name.lower()]
     return r
 
 
-def formal_usage(section):
+def formal_usage(section: str) -> str:
     _, _, section = section.partition(":")  # drop "usage:"
     pu = section.split()
     return "( " + " ".join(") | (" if s == pu[0] else s for s in pu[1:]) + " )"
 
 
-def extras(help, version, options, doc):
+def extras(help: bool, version: str, options: List[Option], doc: str) -> None:
     if help and any((o.name in ("-h", "--help")) and o.value for o in options):
         print(doc.strip("\n"))
         sys.exit()
@@ -609,7 +629,13 @@ class Dict(dict):
         return "{%s}" % ",\n ".join("%r: %r" % i for i in sorted(self.items()))
 
 
-def docopt(doc, argv=None, help=True, version=None, options_first=False):
+TDocoptValue = Union[bool, int, str, List[str]]
+TDocoptDict = TDict[str, TDocoptValue]
+
+
+def docopt(
+    doc: str, argv: TOptional[TSource] = None, help: TOptional[bool] = True, version: TOptional[str] = None, options_first: TOptional[bool] = False
+) -> TDocoptDict:
     """Parse `argv` based on command-line interface described in `doc`.
 
     `docopt` creates your command-line interface based on its
