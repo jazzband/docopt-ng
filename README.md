@@ -8,13 +8,12 @@
 
 > New in version 0.7.0:
 > -   "MORE MAGIC"
-> -   First argument is now optional - docopt() will look for `__doc__` defined in parent scopes.
+> -   First argument is now optional - `docopt()` will look for `__doc__` defined in parent scopes.
 > -   Dot access is supported on resulting `arguments` object,
->     stripping angle brackets and leading dashes.
-> -   `more_magic` parameter added to `docopt()` defaults False,
->     but set True if `docopt()` aliased to `magic_docopt()`.
+>     ignoring angle brackets and leading dashes.
+> -   `more_magic` parameter added to `docopt()` defaults False.
 > -   If `more_magic` enabled, `arguments` variable created and populated
->     in calling scope with result (if not already defined).
+>     in calling scope with results.
 > -   If `more_magic` enabled, fuzzy (levenshtein) autocorrect enabled for long-args.
 > -   Lots of typehints.
 > -   README moved to Markdown.
@@ -388,35 +387,6 @@ We have an extensive list of
 [examples](https://github.com/bazaar-projects/docopt-ng/tree/master/examples)
 which cover every aspect of functionality of **docopt-ng**. Try them
 out, read the source if in doubt.
-
-## Subparsers, multi-level help and *huge* applications (like git)
-
-If you want to split your usage-pattern into several, implement
-multi-level help (with separate help-screen for each subcommand), want
-to interface with existing scripts that don't use **docopt-ng**, or
-you're building the next "git", you will need the new `options_first`
-parameter (described in API section above). To get you started quickly
-we implemented a subset of git command-line interface as an example:
-[examples/git](https://github.com/bazaar-projects/docopt-ng/tree/master/examples/git)
-
-## Data validation
-
-**docopt-ng** does one thing and does it well: it implements your
-command-line interface. However it does not validate the input data. On
-the other hand there are libraries like [python
-schema](https://github.com/halst/schema) which make validating data a
-breeze. Take a look at
-[validation\_example.py](https://github.com/bazaar-projects/docopt-ng/tree/master/examples/validation_example.py)
-which uses **schema** to validate data and report an error to the user.
-
-## Using docopt with config-files
-
-Often configuration files are used to provide default values which could
-be overriden by command-line arguments. Since **docopt-ng** returns a
-simple dictionary it is very easy to integrate with config-files written
-in JSON, YAML or INI formats.
-[config\_file\_example.py](examples/config_file_example.py) provides and
-example of how to use **docopt-ng** with JSON or INI config-file.
 
 # Development
 
