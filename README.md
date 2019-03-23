@@ -6,6 +6,19 @@
 
 ## CHANGELOG
 
+> New in version 0.7.0:
+> -   "MORE MAGIC"
+> -   First argument is now optional - docopt() will look for `__doc__` defined in parent scopes.
+> -   Dot access is supported on resulting `arguments` object,
+>     stripping angle brackets and leading dashes.
+> -   `more_magic` parameter added to `docopt()` defaults False,
+>     but set True if `docopt()` aliased to `magic_docopt()`.
+> -   If `more_magic` enabled, `arguments` variable created and populated
+>     in calling scope with result (if not already defined).
+> -   If `more_magic` enabled, fuzzy (levenshtein) autocorrect enabled for long-args.
+> -   Lots of typehints.
+> -   README moved to Markdown.
+>
 > New in version 0.6.3:
 >
 > -   Catch up on \~two years of pull requests.
@@ -113,12 +126,12 @@ from docopt import docopt
 ```
 
 ``` {.sourceCode .python}
-docopt(doc, argv=None, help=True, version=None, options_first=False)
+docopt(docstring=None, argv=None, help=True, version=None, options_first=False, more_magic=False)
 ```
 
-`docopt` takes 1 required and 4 optional arguments:
+`docopt` takes 6 optional arguments:
 
--   `doc` could be a module docstring (`__doc__`) or some other string
+-   `docstring` could be a module docstring (`__doc__`) or some other string
     that contains a **help message** that will be parsed to create the
     option parser. The simple rules of how to write such a help message
     are given in next sections. Here is a quick example of such a
@@ -135,6 +148,7 @@ docopt(doc, argv=None, help=True, version=None, options_first=False)
 
 """
 ```
+    If it is None (not provided) - the calling scope will be interrogated for a docstring.
 
 -   `argv` is an optional argument vector; by default `docopt` uses the
     argument vector passed to your program (`sys.argv[1:]`).
@@ -164,10 +178,19 @@ docopt(doc, argv=None, help=True, version=None, options_first=False)
     with POSIX, or if you want to dispatch your arguments to other
     programs.
 
+-   `more_magic`, by default `False`. If set to `True` more advanced
+    efforts will be made to correct `--long_form` arguments, ie:
+    `--hlep` will be corrected to `--help`. Additionally, if not
+    already defined, the variable `arguments` will be created and populated
+    in the calling scope. `more_magic` is also set True if `docopt()` is
+    is aliased to ie) `magic_docopt` by
+    `from docopt import docopt as magic_docopt` for maximum convenience.
+
 The **return** value is a simple dictionary with options, arguments and
 commands as keys, spelled exactly like in your help message. Long
-versions of options are given priority. For example, if you invoke the
-top example as:
+versions of options are given priority. Furthermore, dot notation is
+supported, with preceeding dashes (`-`) and surrounding brackets (`<>`)
+ignored. For example, if you invoke the top example as:
 
     naval_fate.py ship Guardian move 100 150 --speed=15
 
@@ -183,6 +206,8 @@ the return dictionary will be:
  '<x>': '100',           'shoot': False,
  '<y>': '150'}
 ```
+
+...and properties can be accessed with `arguments.drifting` or `arguments.x`.
 
 # Help message format
 
