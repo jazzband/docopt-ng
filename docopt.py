@@ -24,6 +24,7 @@ Contributors (roughly in chronological order):
 
 import sys
 import re
+import inspect
 
 from typing import Any, List, Tuple, Union, Dict, Optional
 
@@ -399,7 +400,7 @@ class Tokens(list):
         return self[0] if len(self) else None
 
 
-def parse_longer(tokens: Tokens, options: List[Option], argv: Optional[bool] = False, more_magic: Optional[bool] = True) -> List[Option]:
+def parse_longer(tokens: Tokens, options: List[Option], argv: Optional[bool] = False, more_magic: Optional[bool] = False) -> List[Option]:
     """longer ::= '--' chars [ ( ' ' | '=' ) chars ] ;"""
     longer, eq, value = tokens.move().partition("=")
     assert longer.startswith("--")
@@ -451,6 +452,7 @@ def parse_shorts(tokens: Tokens, options: List[Option], more_magic: Optional[boo
             transformations["uppercase"] = lambda x: x.upper()
         # try identity, lowercase, uppercase, iff such resolves uniquely (ie if upper and lowercase are not both defined)
         similar = []
+        de_abbreviated = False
         for transform_name, transform in transformations.items():
             transformed = list(set([transform(o.short) for o in options if o.short]))
             no_collisions = len([o for o in options if o.short and transformed.count(transform(o.short)) == 1]) == len(transformed)
@@ -471,6 +473,7 @@ def parse_shorts(tokens: Tokens, options: List[Option], more_magic: Optional[boo
                             print(f"NB: Corrected {short} to {similar[0].longer} via abbreviation (case change: {transform_name})")
                             break
                 if len(similar):
+                    de_abbreviated = True
                     break
         if len(similar) > 1:
             raise tokens.error("%s is specified ambiguously %d times" % (short, len(similar)))
@@ -480,6 +483,8 @@ def parse_shorts(tokens: Tokens, options: List[Option], more_magic: Optional[boo
             if tokens.error is DocoptExit:
                 o = Option(short, None, 0, True)
         else:
+            if de_abbreviated:
+                short = None
             o = Option(short, similar[0].longer, similar[0].argcount, similar[0].value)
             value = None
             if o.argcount != 0:
@@ -589,9 +594,9 @@ def parse_argv(tokens: Tokens, options: List[Option], options_first: Optional[bo
     return parsed
 
 
-def parse_defaults(doc: str) -> List[Option]:
+def parse_defaults(docstring: str) -> List[Option]:
     defaults = []
-    for s in parse_section("options:", doc):
+    for s in parse_section("options:", docstring):
         options_literal, _, s = s.partition(":")
         if " " in options_literal:
             _, _, options_literal = options_literal.partition(" ")
@@ -619,9 +624,9 @@ def formal_usage(section: str) -> str:
     return "( " + " ".join(") | (" if s == pu[0] else s for s in pu[1:]) + " )"
 
 
-def extras(default_help: bool, version: str, options: List[Option], doc: str) -> None:
+def extras(default_help: bool, version: str, options: List[Option], docstring: str) -> None:
     if default_help and any((o.name in ("-h", "--help")) and o.value for o in options):
-        print(doc.strip("\n"))
+        print(docstring.strip("\n"))
         sys.exit()
     if version and any(o.name == "--version" and o.value for o in options):
         print(version)
@@ -629,13 +634,6 @@ def extras(default_help: bool, version: str, options: List[Option], doc: str) ->
 
 
 class ParsedOptions(dict):
-    def __init__(self, *args, make_global=False, **kwargs):
-        super().__init__(*args, **kwargs)
-        if make_global:
-            if "arguments" in globals():
-                raise NameError("'arguments' already defined")
-            else:
-                globals()["arguments"] = self
 
     def __repr__(self):
         return "{%s}" % ",\n ".join("%r: %r" % i for i in sorted(self.items()))
@@ -644,28 +642,25 @@ class ParsedOptions(dict):
         return self.get(name) or {name: self.get(k) for k in self.keys() if name in [k.lstrip("-"), k.lstrip("<").rstrip(">")]}.get(name)
 
 
-TDocoptValue = Union[bool, int, str, List[str]]
-TDocoptDict = Dict[str, TDocoptValue]
-
 
 def docopt(
-    doc: Optional[str] = __doc__,
+    docstring: Optional[str] = None,
     argv: Optional[TSource] = None,
     default_help: Optional[bool] = True,
     version: Optional[str] = None,
     options_first: Optional[bool] = False,
     more_magic: Optional[bool] = False,
-) -> TDocoptDict:
+) -> ParsedOptions:
     """Parse `argv` based on command-line interface described in `doc`.
 
     `docopt` creates your command-line interface based on its
-    description that you pass as `doc`. Such description can contain
+    description that you pass as `docstring`. Such description can contain
     --options, <positional-argument>, commands, which could be
     [optional], (required), (mutually | exclusive) or repeated...
 
     Parameters
     ----------
-    doc : str (default: __doc__)
+    docstring : str (default: first __doc__ in parent scope)
         Description of your command-line interface.
     argv : list of str, optional
         Argument vector to be parsed. sys.argv[1:] is used if not
@@ -679,9 +674,10 @@ def docopt(
     options_first : bool (default: False)
         Set to True to require options precede positional arguments,
         i.e. to forbid options and positional arguments intermix.
-    more_magic : bool (default: True)
-        Try to be extra-helpful; pull results into globals() as 'arguments',
+    more_magic : bool (default: False)
+        Try to be extra-helpful; pull results into globals() of caller as 'arguments',
         offer advanced pattern-matching and spellcheck.
+        Also activates if `docopt` aliased to a name containing 'magic'.
 
     Returns
     -------
@@ -714,17 +710,29 @@ def docopt(
      'serial': False,
      'tcp': True}
 
-    See also
-    --------
-    * For video introduction see http://docopt.org
-    * Full documentation is available in README.rst as well as online
-      at https://github.com/docopt/docopt#readme
-
     """
     argv = sys.argv[1:] if argv is None else argv
-    if not doc:
-        raise DocoptLanguageError("Either __doc__ must be defined or passed as the first argument.")
-    usage_sections = parse_section("usage:", doc)
+    parent_frame = doc_parent_frame = magic_parent_frame = None
+    if more_magic:
+        # save the parent frame for future use
+        parent_frame = inspect.currentframe().f_back
+    if not more_magic: # make sure 'magic' isn't in the calling name
+        magic_parent_frame = inspect.currentframe().f_back
+        while not more_magic and magic_parent_frame:
+            imported_as = {v:k for k,v in magic_parent_frame.f_globals.items() if hasattr(v, '__name__') and v.__name__ == docopt.__name__}.get(docopt)
+            if imported_as and 'magic' in imported_as:
+                more_magic = True
+            else:
+                magic_parent_frame = magic_parent_frame.f_back
+    if not docstring: # go look for one, if none exists, raise Exception
+        doc_parent_frame = inspect.currentframe().f_back
+        while not docstring and doc_parent_frame:
+            docstring = doc_parent_frame.f_locals.get("__doc__")
+            if not docstring:
+                doc_parent_frame = doc_parent_frame.f_back
+        if not docstring:
+            raise DocoptLanguageError("Either __doc__ must be defined in the scope of a parent or passed as the first argument.")
+    usage_sections = parse_section("usage:", docstring)
     if len(usage_sections) == 0:
         raise DocoptLanguageError('"usage:" section (case-insensitive) not found. Perhaps missing indentation?')
     if len(usage_sections) > 1:
@@ -733,21 +741,25 @@ def docopt(
     if options_pattern.search(usage_sections[0]):
         raise DocoptExit("Warning: options (case-insensitive) was found in usage." "Use a blank line between each section..")
     DocoptExit.usage = usage_sections[0]
-    options = parse_defaults(doc)
+    options = parse_defaults(docstring)
     pattern = parse_pattern(formal_usage(DocoptExit.usage), options)
     pattern_options = set(pattern.flat(Option))
     for options_shortcut in pattern.flat(OptionsShortcut):
-        doc_options = parse_defaults(doc)
+        doc_options = parse_defaults(docstring)
         options_shortcut.children = [opt for opt in doc_options if opt not in pattern_options]
     names = [n.longer or n.short for n in options]
     duplicated = [n for n in names if names.count(n) > 1]
     if any([duplicated]):
         raise DocoptLanguageError(f"duplicated token(s): {duplicated}")
     argv = parse_argv(Tokens(argv), list(options), options_first, more_magic)
-    extras(help, version, argv, doc)
+    extras(help, version, argv, docstring)
     matched, left, collected = pattern.fix().match(argv)
     if matched and left == []:
-        return ParsedOptions(((a.name, a.value) for a in (pattern.flat() + collected)), make_global=more_magic)
+        output_obj = ParsedOptions((a.name, a.value) for a in (pattern.flat() + collected))
+        parent_frame = parent_frame or magic_parent_frame or doc_parent_frame
+        if more_magic and parent_frame and not parent_frame.f_globals.get("arguments"):
+            parent_frame.f_globals['arguments'] = output_obj
+        return output_obj
     if left:
         raise DocoptExit(f"Warning: found unmatched (duplicate?) arguments {left}")
     raise DocoptExit(collected=collected, left=left)
