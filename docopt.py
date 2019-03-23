@@ -26,10 +26,10 @@ import sys
 import re
 import inspect
 
-from typing import Any, List, Tuple, Union, Dict, Optional
+from typing import Any, List, Tuple, Union, Optional
 
 __all__ = ["docopt"]
-__version__ = "0.6.3"
+__version__ = "0.7.0"
 
 
 def levenshtein_norm(source: str, target: str) -> float:
