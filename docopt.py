@@ -634,13 +634,11 @@ def extras(default_help: bool, version: str, options: List[Option], docstring: s
 
 
 class ParsedOptions(dict):
-
     def __repr__(self):
         return "{%s}" % ",\n ".join("%r: %r" % i for i in sorted(self.items()))
 
     def __getattr__(self, name):
         return self.get(name) or {name: self.get(k) for k in self.keys() if name in [k.lstrip("-"), k.lstrip("<").rstrip(">")]}.get(name)
-
 
 
 def docopt(
@@ -716,15 +714,15 @@ def docopt(
     if more_magic:
         # save the parent frame for future use
         parent_frame = inspect.currentframe().f_back
-    if not more_magic: # make sure 'magic' isn't in the calling name
+    if not more_magic:  # make sure 'magic' isn't in the calling name
         magic_parent_frame = inspect.currentframe().f_back
         while not more_magic and magic_parent_frame:
-            imported_as = {v:k for k,v in magic_parent_frame.f_globals.items() if hasattr(v, '__name__') and v.__name__ == docopt.__name__}.get(docopt)
-            if imported_as and 'magic' in imported_as:
+            imported_as = {v: k for k, v in magic_parent_frame.f_globals.items() if hasattr(v, "__name__") and v.__name__ == docopt.__name__}.get(docopt)
+            if imported_as and "magic" in imported_as:
                 more_magic = True
             else:
                 magic_parent_frame = magic_parent_frame.f_back
-    if not docstring: # go look for one, if none exists, raise Exception
+    if not docstring:  # go look for one, if none exists, raise Exception
         doc_parent_frame = inspect.currentframe().f_back
         while not docstring and doc_parent_frame:
             docstring = doc_parent_frame.f_locals.get("__doc__")
@@ -758,7 +756,7 @@ def docopt(
         output_obj = ParsedOptions((a.name, a.value) for a in (pattern.flat() + collected))
         parent_frame = parent_frame or magic_parent_frame or doc_parent_frame
         if more_magic and parent_frame and not parent_frame.f_globals.get("arguments"):
-            parent_frame.f_globals['arguments'] = output_obj
+            parent_frame.f_globals["arguments"] = output_obj
         return output_obj
     if left:
         raise DocoptExit(f"Warning: found unmatched (duplicate?) arguments {left}")

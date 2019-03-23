@@ -22,6 +22,7 @@ def test_docopt_ng_more_magic_spellcheck_and_expansion():
         Argument(None, "arg2"),
     ]
 
+
 def test_docopt_ng_as_magic_docopt_more_magic_global_arguments_and_dot_access():
     doc = """Usage: prog [-vqr] [FILE]
               prog INPUT OUTPUT
@@ -39,6 +40,7 @@ def test_docopt_ng_as_magic_docopt_more_magic_global_arguments_and_dot_access():
     assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
     assert arguments.v == True
     assert arguments.FILE == "file.py"
+
 
 def test_docopt_ng_more_magic_global_arguments_and_dot_access():
     doc = """Usage: prog [-vqr] [FILE]
@@ -68,6 +70,7 @@ def test_docopt_ng_more_magic_global_arguments_and_dot_access():
     with raises(DocoptExit):
         docopt.docopt(doc, "--fake")
 
+
 def test_docopt_ng__doc__if_no_doc():
     import sys
 
@@ -79,12 +82,18 @@ def test_docopt_ng__doc__if_no_doc():
     with raises(DocoptLanguageError):
         docopt.docopt()
 
+
 def test_docopt_ng__doc__if_no_doc_indirection():
     import sys
+
     __doc__, sys.argv = "usage: prog --long=<a>", [None, "--long="]
+
     def test_indirect():
         return docopt.docopt()
+
     assert test_indirect() == {"--long": ""}
+
     def test_even_more_indirect():
         return test_indirect()
+
     assert test_even_more_indirect() == {"--long": ""}
