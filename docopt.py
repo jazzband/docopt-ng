@@ -9,8 +9,8 @@ Contributors (roughly in chronological order):
 
  * Copyright (c) 2012 Andrew Kassen <atkassen@ucdavis.edu>
  * Copyright (c) 2012 jeffrimko <jeffrimko@gmail.com>
- * COpyright (c) 2012 Andrew Sutton <met48@met48.com>
- * COpyright (c) 2012 Andrew Sutton <met48@met48.com>
+ * Copyright (c) 2012 Andrew Sutton <met48@met48.com>
+ * Copyright (c) 2012 Andrew Sutton <met48@met48.com>
  * Copyright (c) 2012 Nima Johari <nimajohari@gmail.com>
  * Copyright (c) 2012-2013 Vladimir Keleshev, vladimir@keleshev.com
  * Copyright (c) 2014-2018 Matt Boersma <matt@sprout.org>
@@ -28,8 +28,8 @@ import inspect
 
 from typing import Any, List, Tuple, Union, Optional
 
-__all__ = ["docopt"]
-__version__ = "0.7.0"
+__all__ = ["docopt", "magic_docopt", "magic"]
+__version__ = "0.7.1"
 
 
 def levenshtein_norm(source: str, target: str) -> float:
