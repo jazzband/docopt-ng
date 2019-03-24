@@ -55,18 +55,7 @@
 >     `[default: ./here ./there]` will be interpreted as
 >     `['./here', './there']`.
 
-#### Breaking changes:
-
-> -   Meaning of `[options]` shortcut slightly changed. Previously it
->     meant *"any known option"*. Now it means *"any option not in
->     usage-pattern"*. This avoids the situation when an option is
->     allowed to be repeated unintentionally.
-> -   `argv` is `None` by default, not `sys.argv[1:]`. This allows
->     `docopt` to always use the *latest* `sys.argv`, not `sys.argv`
->     during import time.
-
-**docopt-ng** helps you create most beautiful command-line interfaces
-*easily*:
+**docopt-ng** helps you create beautiful command-line interfaces *magically*:
 
 ``` {.sourceCode .python}
 """Naval Fate.
@@ -110,7 +99,7 @@ putting help message in the module docstrings.
 
 Use [pip](http://pip-installer.org) or easy\_install:
 
-    pip install docopt-ng==0.6.3
+    pip install docopt-ng
 
 Alternatively, you can just drop `docopt.py` file into your project--it
 is self-contained.
