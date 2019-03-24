@@ -6,7 +6,12 @@
 
 ## CHANGELOG
 
-> New in version 0.7.0:
+#### New in version 0.7.1:
+
+> -   Add `magic()` and `magic_docopt()` aliases for `docopt()` allowing easier use of new features.
+
+#### New in version 0.7.0:
+
 > -   "MORE MAGIC"
 > -   First argument is now optional - `docopt()` will look for `__doc__` defined in parent scopes.
 > -   Dot access is supported on resulting `arguments` object,
@@ -17,9 +22,9 @@
 > -   If `more_magic` enabled, fuzzy (levenshtein) autocorrect enabled for long-args.
 > -   Lots of typehints.
 > -   README moved to Markdown.
->
-> New in version 0.6.3:
->
+
+#### New in version 0.6.3:
+
 > -   Catch up on \~two years of pull requests.
 > -   Fork [docopt](https://github.com/docopt/docopt) to
 >     [docopt-ng](https://github.com/bazaar-projects/docopt-ng).
@@ -28,18 +33,18 @@
 > -   Add better debug / error messages.
 > -   Linting (via [black](https://github.com/ambv/black) and
 >     [flake8](https://gitlab.com/pycqa/flake8)).
->
-> New in version 0.6.2:
->
+
+#### New in version 0.6.2:
+
 > -   Bugfixes
 >
-> New in version 0.6.1:
+#### New in version 0.6.1:
 >
 > -   Fix issue [\#85](https://github.com/docopt/docopt/issues/85) which
 >     caused improper handling of `[options]` shortcut if it was present
 >     several times.
 >
-> New in version 0.6.0:
+#### New in version 0.6.0:
 >
 > -   New argument `options_first`, disallows interspersing options and
 >     arguments. If you supply `options_first=True` to `docopt`, it will
@@ -49,9 +54,9 @@
 >     be interpreted as space-separated list. E.g. with
 >     `[default: ./here ./there]` will be interpreted as
 >     `['./here', './there']`.
->
-> Breaking changes:
->
+
+#### Breaking changes:
+
 > -   Meaning of `[options]` shortcut slightly changed. Previously it
 >     meant *"any known option"*. Now it means *"any option not in
 >     usage-pattern"*. This avoids the situation when an option is
@@ -182,8 +187,8 @@ docopt(docstring=None, argv=None, help=True, version=None, options_first=False, 
     `--hlep` will be corrected to `--help`. Additionally, if not
     already defined, the variable `arguments` will be created and populated
     in the calling scope. `more_magic` is also set True if `docopt()` is
-    is aliased to ie) `magic_docopt` by
-    `from docopt import docopt as magic_docopt` for maximum convenience.
+    is aliased to a name containing `magic` ie) by built-in`from docopt import magic` or
+    user-defined `from docopt import docopt as magic_docopt_wrapper` for convenience.
 
 The **return** value is a simple dictionary with options, arguments and
 commands as keys, spelled exactly like in your help message. Long

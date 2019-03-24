@@ -761,3 +761,6 @@ def docopt(
     if left:
         raise DocoptExit(f"Warning: found unmatched (duplicate?) arguments {left}")
     raise DocoptExit(collected=collected, left=left)
+
+
+magic = magic_docopt = docopt

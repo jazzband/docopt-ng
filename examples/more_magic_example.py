@@ -1,4 +1,5 @@
-__doc__ = f"""Usage: {__file__} [options] [FILE] ...
+__doc__ = f"""
+Usage: {__file__} [options] [FILE] ...
        {__file__} (--left | --right) STEP1 STEP2
 
 Process FILE and optionally apply correction to either left-hand side or
@@ -15,9 +16,28 @@ Options:
   --report       make report
 
 """
-from docopt import docopt as magic_docopt
 
+from docopt import magic
 
-if __name__ == "__main__":
-    magic_docopt(version=1.9)
-    print(arguments)
+magic()
+
+"""
+prints:
+{'--help': False,
+ '--left': False,
+ '--quiet': False,
+ '--report': False,
+ '--right': False,
+ '--verbose': False,
+ 'FILE': [],
+ 'STEP1': None,
+ 'STEP2': None}
+"""
+
+print(arguments)
+
+"""
+prints:
+False
+"""
+print(arguments.left)

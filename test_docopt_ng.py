@@ -1,7 +1,9 @@
 import docopt
 from docopt import DocoptExit, DocoptLanguageError, Option, Argument, Command, OptionsShortcut, Required, NotRequired, parse_argv, Tokens
 from pytest import raises
-from docopt import docopt as magic_docopt
+from docopt import magic
+from docopt import magic_docopt
+from docopt import docopt as user_provided_alias_containing_magic
 
 
 def test_docopt_ng_more_magic_spellcheck_and_expansion():
@@ -40,6 +42,14 @@ def test_docopt_ng_as_magic_docopt_more_magic_global_arguments_and_dot_access():
     assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
     assert arguments.v == True
     assert arguments.FILE == "file.py"
+    arguments = None
+    magic(doc, "-v file.py")
+    assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
+    assert arguments.v == True
+    assert arguments.FILE == "file.py"
+    arguments = None
+    user_provided_alias_containing_magic(doc, "-v file.py")
+    assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
 
 
 def test_docopt_ng_more_magic_global_arguments_and_dot_access():
