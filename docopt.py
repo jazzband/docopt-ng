@@ -220,7 +220,7 @@ class BranchPattern(Pattern):
         self.children = list(children)
 
     def match(self, left: List["Pattern"], collected: List["Pattern"] = None) -> Any:
-        raise NotImplemented
+        raise NotImplementedError
 
     def fix(self) -> "BranchPattern":
         self.fix_identities()
