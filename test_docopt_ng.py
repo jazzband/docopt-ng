@@ -52,6 +52,28 @@ def test_docopt_ng_as_magic_docopt_more_magic_global_arguments_and_dot_access():
     assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
 
 
+def test_docopt_ng_more_magic_no_make_global_arguments_if_assigned():
+    doc = """Usage: prog [-vqr] [FILE]
+              prog INPUT OUTPUT
+              prog --help
+
+    Options:
+      -v  print status messages
+      -q  report only file names
+      -r  show all occurrences of the same error
+      --help
+
+    """
+    global arguments
+    global arguments
+    arguments = None
+    opts = magic_docopt(doc, argv="-v file.py")
+    assert arguments == None
+    assert opts == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
+    assert opts.v == True
+    assert opts.FILE == "file.py"
+
+
 def test_docopt_ng_more_magic_global_arguments_and_dot_access():
     doc = """Usage: prog [-vqr] [FILE]
               prog INPUT OUTPUT
