@@ -26,7 +26,7 @@ import sys
 import re
 import inspect
 
-from typing import Any, List, Tuple, Union, Optional
+from typing import Any, List, Tuple, Union, Optional, Iterable
 
 __all__ = ["docopt", "magic_docopt", "magic"]
 __version__ = "0.7.1"
@@ -118,7 +118,7 @@ class DocoptExit(SystemExit):
 
     usage: str = ""
 
-    def __init__(self, message: Optional[str] = "", collected: Optional[str] = None, left: Optional[str] = None) -> None:
+    def __init__(self, message: str = "", collected: Optional[str] = None, left: Optional[str] = None) -> None:
         self.collected = collected if collected is not None else []
         self.left = left if left is not None else []
         SystemExit.__init__(self, (message + "\n" + self.usage).strip())
@@ -147,6 +147,7 @@ class Pattern:
                 self.children[i] = uniq[uniq.index(child)]
             else:
                 child.fix_identities(uniq)
+        return None
 
     def fix_repeating_arguments(self) -> "Pattern":
         """Fix elements that should accumulate/increment values."""
@@ -194,7 +195,7 @@ class LeafPattern(Pattern):
 
     """Leaf/terminal node of a pattern tree."""
 
-    def __init__(self, name: str, value: Optional[Union[str, int, List[Union[str, Pattern]]]] = None) -> None:
+    def __init__(self, name: Optional[str], value: Optional[Union[str, int, List[Union[str, Pattern]]]] = None) -> None:
         self.name, self.value = name, value
 
     def __repr__(self):
@@ -227,7 +228,7 @@ class BranchPattern(Pattern):
 
     """Branch/inner node of a pattern tree."""
 
-    children: List["BranchPattern"]
+    children: Iterable["BranchPattern"]
 
     def __init__(self, *children: Pattern) -> None:
         self.children = list(children)
@@ -333,7 +334,7 @@ class NotRequired(BranchPattern):
     def match(self, left: List[TArgumentOption], collected: Optional[List[BranchPattern]] = None) -> TMatch:
         collected = [] if collected is None else collected
         for pattern in self.children:
-            m, left, collected = pattern.match(left, collected)
+            _, left, collected = pattern.match(left, collected)
         return True, left, collected
 
 
@@ -379,19 +380,21 @@ class Either(BranchPattern):
 
 TSource = Union[str, List[str]]
 
-
 class Tokens(list):
     error: type
 
     def __init__(self, source: TSource, error: type = DocoptExit) -> None:
-        self += source.split() if hasattr(source, "split") else source
+        if isinstance(source, list):
+            self += source
+        else:
+            self += source.split()
         self.error = error
 
     @staticmethod
     def from_pattern(source: str) -> "Tokens":
         source = re.sub(r"([\[\]\(\)\|]|\.\.\.)", r" \1 ", source)
-        source = [s for s in re.split(r"\s+|(\S*<.*?>)", source) if s]
-        return Tokens(source, error=DocoptLanguageError)
+        fragments = [s for s in re.split(r"\s+|(\S*<.*?>)", source) if s]
+        return Tokens(fragments, error=DocoptLanguageError)
 
     def move(self) -> Optional[str]:
         return self.pop(0) if len(self) else None
@@ -441,9 +444,10 @@ def parse_longer(tokens: Tokens, options: List[Option], argv: Optional[bool] = F
 def parse_shorts(tokens: Tokens, options: List[Option], more_magic: Optional[bool] = False) -> List[Option]:
     """shorts ::= '-' ( chars )* [ [ ' ' ] chars ] ;"""
     token = tokens.move()
-    assert token.startswith("-") and not token.startswith("--")
+    if not token.startswith("-") or token.startswith("--"):
+        raise ValueError(f"parse_shorts got what appears to be a long: {token}")
     left = token.lstrip("-")
-    parsed = []
+    parsed: List[Option] = []
     while left != "":
         short, left = "-" + left[0], left[1:]
         transformations = {None: lambda x: x}
@@ -451,7 +455,7 @@ def parse_shorts(tokens: Tokens, options: List[Option], more_magic: Optional[boo
             transformations["lowercase"] = lambda x: x.lower()
             transformations["uppercase"] = lambda x: x.upper()
         # try identity, lowercase, uppercase, iff such resolves uniquely (ie if upper and lowercase are not both defined)
-        similar = []
+        similar: List[Option] = []
         de_abbreviated = False
         for transform_name, transform in transformations.items():
             transformed = list(set([transform(o.short) for o in options if o.short]))
@@ -484,8 +488,10 @@ def parse_shorts(tokens: Tokens, options: List[Option], more_magic: Optional[boo
                 o = Option(short, None, 0, True)
         else:
             if de_abbreviated:
-                short = None
-            o = Option(short, similar[0].longer, similar[0].argcount, similar[0].value)
+                option_short_value = None
+            else:
+                option_short_value = short
+            o = Option(option_short_value, similar[0].longer, similar[0].argcount, similar[0].value)
             value = None
             if o.argcount != 0:
                 if left == "":
@@ -542,9 +548,12 @@ def parse_atom(tokens: Tokens, options: List[Option]) -> List[Union[LeafPattern,
     """
     token = tokens.current()
     result = []
-    if token in "([":
+    if not token:
+        return [Command(tokens.move())]
+    elif token in "([":
         tokens.move()
-        matching, pattern = {"(": [")", Required], "[": ["]", NotRequired]}[token]
+        matching: str = {"(":")", "[":"]"}[token]
+        pattern: BranchPattern = {"(": Required, "[": NotRequired}[token]
         result = pattern(*parse_expr(tokens, options))
         if tokens.move() != matching:
             raise tokens.error("unmatched '%s'" % token)
@@ -579,18 +588,20 @@ def parse_argv(tokens: Tokens, options: List[Option], options_first: Optional[bo
         except ValueError:
             return False
 
-    parsed = []
-    while tokens.current() is not None:
-        if tokens.current() == "--":
+    parsed: List[Union[Argument, Option]] = []
+    current_token = tokens.current()
+    while current_token != None:
+        if current_token == "--":
             return parsed + [Argument(None, v) for v in tokens]
-        elif tokens.current().startswith("--"):
+        elif current_token.startswith("--"):
             parsed += parse_longer(tokens, options, argv=True, more_magic=more_magic)
-        elif tokens.current().startswith("-") and tokens.current() != "-" and not isanumber(tokens.current()):
+        elif current_token.startswith("-") and current_token != "-" and not isanumber(current_token):
             parsed += parse_shorts(tokens, options, more_magic=more_magic)
         elif options_first:
             return parsed + [Argument(None, v) for v in tokens]
         else:
             parsed.append(Argument(None, tokens.move()))
+        current_token = tokens.current()
     return parsed
 
 
@@ -624,7 +635,7 @@ def formal_usage(section: str) -> str:
     return "( " + " ".join(") | (" if s == pu[0] else s for s in pu[1:]) + " )"
 
 
-def extras(default_help: bool, version: str, options: List[Option], docstring: str) -> None:
+def extras(default_help: bool, version: Optional[str], options: List[Option], docstring: str) -> None:
     if default_help and any((o.name in ("-h", "--help")) and o.value for o in options):
         print(docstring.strip("\n"))
         sys.exit()
@@ -644,7 +655,7 @@ class ParsedOptions(dict):
 def docopt(
     docstring: Optional[str] = None,
     argv: Optional[TSource] = None,
-    default_help: Optional[bool] = True,
+    default_help: bool = True,
     version: Optional[str] = None,
     options_first: Optional[bool] = False,
     more_magic: Optional[bool] = False,
@@ -750,7 +761,7 @@ def docopt(
     if any([duplicated]):
         raise DocoptLanguageError(f"duplicated token(s): {duplicated}")
     argv = parse_argv(Tokens(argv), list(options), options_first, more_magic)
-    extras(help, version, argv, docstring)
+    extras(default_help, version, argv, docstring)
     matched, left, collected = pattern.fix().match(argv)
     if matched and left == []:
         output_obj = ParsedOptions((a.name, a.value) for a in (pattern.flat() + collected))
