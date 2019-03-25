@@ -27,7 +27,7 @@ import re
 import inspect
 
 
-from typing import Any, List, Optional, Tuple, Type, Union, Dict, Callable, Iterable
+from typing import Any, List, Optional, Tuple, Type, Union, Dict, Callable
 
 __all__ = ["docopt", "magic_docopt", "magic"]
 __version__ = "0.7.1"
@@ -239,8 +239,6 @@ class LeafPattern(Pattern):
 class BranchPattern(Pattern):
 
     """Branch/inner node of a pattern tree."""
-
-    # hildren: Iterable["BranchPattern"]
 
     def __init__(self, *children) -> None:
         self.children = list(children)
@@ -526,7 +524,7 @@ def parse_pattern(source: str, options: List[Option]) -> Required:
     return Required(*result)
 
 
-def parse_expr(tokens: Tokens, options: List[Option]) -> Any:
+def parse_expr(tokens: Tokens, options: List[Option]) -> List[Any]:
     """expr ::= seq ( '|' seq )* ;"""
     seq_0: List[BranchPattern] = parse_seq(tokens, options)
     if tokens.current() != "|":
@@ -565,7 +563,6 @@ def parse_atom(tokens: Tokens, options: List[Option]) -> List[LeafPattern]:
              | longer | shorts | argument | command ;
     """
     token = tokens.current()
-    result: List[Pattern] = []
     if not token:
         return [Command(tokens.move())]
     elif token in "([":
@@ -608,12 +605,12 @@ def parse_argv(tokens: Tokens, options: List[Option], options_first: bool = Fals
 
     parsed: List[LeafPattern] = []
     current_token = tokens.current()
-    while current_token != None:
+    while current_token is not None:
         if current_token == "--":
             return parsed + [Argument(None, v) for v in tokens]
-        elif current_token and current_token.startswith("--"):
+        elif current_token.startswith("--"):
             parsed += parse_longer(tokens, options, argv=True, more_magic=more_magic)
-        elif current_token and current_token.startswith("-") and current_token != "-" and not isanumber(current_token):
+        elif current_token.startswith("-") and current_token != "-" and not isanumber(current_token):
             parsed += parse_shorts(tokens, options, more_magic=more_magic)
         elif options_first:
             return parsed + [Argument(None, v) for v in tokens]
