@@ -233,8 +233,8 @@ def test_pattern_either():
 
 
 def test_pattern_fix_repeating_arguments():
-    assert Option("-a").fix_repeating_arguments() == Option("-a")
-    assert Argument("N", None).fix_repeating_arguments() == Argument("N", None)
+    assert Required(Option("-a")).fix_repeating_arguments() == Required(Option("-a"))
+    assert Required(Argument("N", None)).fix_repeating_arguments() == Required(Argument("N", None))
     assert Required(Argument("N"), Argument("N")).fix_repeating_arguments() == Required(Argument("N", []), Argument("N", []))
     assert Either(Argument("N"), OneOrMore(Argument("N"))).fix() == Either(Argument("N", []), OneOrMore(Argument("N", [])))
 
@@ -283,8 +283,6 @@ def test_short_options_error_handling():
     with raises(DocoptLanguageError):
         docopt("Usage: prog -x\nOptions: -x  this\n -x  that")
 
-    #    with raises(DocoptLanguageError):
-    #        docopt('Usage: prog -x')
     with raises(DocoptExit):
         docopt("Usage: prog", "-x")
 
@@ -340,9 +338,6 @@ def test_docopt():
 
     with raises(SystemExit):
         docopt(doc, "--hel")
-
-    # with raises(SystemExit):
-    #    docopt(doc, 'help')  XXX Maybe help command?
 
 
 def test_language_errors():
@@ -423,28 +418,6 @@ def test_default_value_for_positional_arguments():
           """
     a = docopt(doc, "--data=this")
     assert a == {"--data": ["this"]}
-
-
-# def test_parse_defaults():
-#    assert parse_defaults("""usage: prog
-#                          options:
-#                          -o, --option <o>
-#                          --another <a>  description
-#                                         [default: x]
-#                          <a>
-#                          <another>  description [default: y]""") == \
-#           ([Option('-o', '--option', 1, None),
-#             Option(None, '--another', 1, 'x')],
-#            [Argument('<a>', None),
-#             Argument('<another>', 'y')])
-#
-#    doc = '''
-#    -h, --help  Print help message.
-#    -o FILE     Output file.
-#    --verbose   Verbose mode.'''
-#    assert parse_defaults(doc)[0] == [Option('-h', '--help'),
-#                                      Option('-o', None, 1),
-#                                      Option(None, '--verbose')]
 
 
 def test_issue_59():
