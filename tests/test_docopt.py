@@ -283,8 +283,6 @@ def test_short_options_error_handling():
     with raises(DocoptLanguageError):
         docopt("Usage: prog -x\nOptions: -x  this\n -x  that")
 
-    #    with raises(DocoptLanguageError):
-    #        docopt('Usage: prog -x')
     with raises(DocoptExit):
         docopt("Usage: prog", "-x")
 
@@ -340,9 +338,6 @@ def test_docopt():
 
     with raises(SystemExit):
         docopt(doc, "--hel")
-
-    # with raises(SystemExit):
-    #    docopt(doc, 'help')  XXX Maybe help command?
 
 
 def test_language_errors():
@@ -423,28 +418,6 @@ def test_default_value_for_positional_arguments():
           """
     a = docopt(doc, "--data=this")
     assert a == {"--data": ["this"]}
-
-
-# def test_parse_defaults():
-#    assert parse_defaults("""usage: prog
-#                          options:
-#                          -o, --option <o>
-#                          --another <a>  description
-#                                         [default: x]
-#                          <a>
-#                          <another>  description [default: y]""") == \
-#           ([Option('-o', '--option', 1, None),
-#             Option(None, '--another', 1, 'x')],
-#            [Argument('<a>', None),
-#             Argument('<another>', 'y')])
-#
-#    doc = '''
-#    -h, --help  Print help message.
-#    -o FILE     Output file.
-#    --verbose   Verbose mode.'''
-#    assert parse_defaults(doc)[0] == [Option('-h', '--help'),
-#                                      Option('-o', None, 1),
-#                                      Option(None, '--verbose')]
 
 
 def test_issue_59():
