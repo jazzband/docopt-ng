@@ -2,9 +2,18 @@
 
 [![image](https://travis-ci.org/bazaar-projects/docopt-ng.svg?branch=master)](https://travis-ci.org/bazaar-projects/docopt-ng)
 
+[![codecov](https://codecov.io/gh/bazaar-projects/docopt-ng/branch/master/graph/badge.svg)](https://codecov.io/gh/bazaar-projects/docopt-ng)
+
 [![image](https://img.shields.io/pypi/v/docopt-ng.svg)](https://pypi.python.org/pypi/docopt-ng)
 
 ## CHANGELOG
+
+#### New in version 0.7.2:
+
+> -   Complete MyPy typehints - ZERO errors.
+>     Required refactoring class implementations, adding typing stubs, but not changing tests. :)
+> -   100% code coverage. Required the addition of a few tests.
+>     Removed unused codepaths. Tagged typing stubs `pragma: no cover` as they are definitionally exercised.
 
 #### New in version 0.7.1:
 
