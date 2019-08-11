@@ -277,7 +277,7 @@ class Command(Argument):
 
 
 class Option(LeafPattern):
-    def __init__(self, short: Optional[str] = None, longer: Optional[str] = None, argcount: int = 0, value: Union[List[str], str, int, None] = False, atype: Optional[str] = None)  -> None:
+    def __init__(self, short: Optional[str] = None, longer: Optional[str] = None, argcount: int = 0, value: Union[List[str], str, int, None] = False, atype: Optional[str] = None) -> None:
         assert argcount in (0, 1)
         self.short, self.longer, self.argcount, self.atype = short, longer, argcount, atype
         self.value = None if value is False and argcount else value
