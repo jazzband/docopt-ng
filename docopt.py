@@ -18,7 +18,8 @@ Contributors (roughly in chronological order):
  * Copyright (c) 2015 Benjamin Bach <benjaoming@gmail.com>
  * Copyright (c) 2017 Oleg Bulkin <o.bulkin@gmail.com>
  * Copyright (c) 2018 Iain Barnett <iainspeed@gmail.com>
- * Copyright (c) 2019 itdaniher, itdaniher@gmail.com
+ * Copyright (c) 2019 itdaniher, <itdaniher@gmail.com>
+ * Copyright (c) 2019 con-f-use, <con-f-use@gmx.net>
 
 """
 
@@ -276,14 +277,14 @@ class Command(Argument):
 
 
 class Option(LeafPattern):
-    def __init__(self, short: Optional[str] = None, longer: Optional[str] = None, argcount: int = 0, value: Union[List[str], str, int, None] = False) -> None:
+    def __init__(self, short: Optional[str] = None, longer: Optional[str] = None, argcount: int = 0, value: Union[List[str], str, int, None] = False, atype: Optional[str] = None)  -> None:
         assert argcount in (0, 1)
-        self.short, self.longer, self.argcount = short, longer, argcount
+        self.short, self.longer, self.argcount, self.atype = short, longer, argcount, atype
         self.value = None if value is False and argcount else value
 
     @classmethod
     def parse(class_, option_description: str) -> "Option":
-        short, longer, argcount, value = None, None, 0, False
+        short, longer, argcount, value, atype = None, None, 0, False, None
         options, _, description = option_description.strip().partition("  ")
         options = options.replace(",", " ").replace("=", " ")
         for s in options.split():
@@ -291,12 +292,15 @@ class Option(LeafPattern):
                 longer = s
             elif s.startswith("-"):
                 short = s
+            elif s:
+                atype = s
+                argcount = 1
             else:
                 argcount = 1
         if argcount:
             matched = re.findall(r"\[default: (.*)\]", description, flags=re.I)
             value = matched[0] if matched else None
-        return class_(short, longer, argcount, value)
+        return class_(short, longer, argcount, value, atype)
 
     def single_match(self, left: List[LeafPattern]) -> TSingleMatch:
         for n, pattern in enumerate(left):
@@ -309,7 +313,7 @@ class Option(LeafPattern):
         return self.longer or self.short
 
     def __repr__(self) -> str:
-        return "Option(%r, %r, %r, %r)" % (self.short, self.longer, self.argcount, self.value)
+        return "Option(%r, %r, %r, %r, %r)" % (self.short, self.longer, self.argcount, self.value, self.atype)
 
 
 class Required(BranchPattern):
