@@ -29,7 +29,7 @@ import inspect
 
 from typing import Any, List, Optional, Tuple, Type, Union, Dict, Callable
 
-__all__ = ["docopt", "magic_docopt", "magic"]
+__all__ = ["docopt", "magic_docopt", "magic", "DocoptExit"]
 __version__ = "0.7.2"
 
 
