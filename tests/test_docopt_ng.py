@@ -143,3 +143,32 @@ def test_docopt_ng__doc__if_no_doc_indirection():
         return test_indirect()
 
     assert test_even_more_indirect() == {"--long": ""}
+
+
+def test_docopt_ng_dot_access_with_dash():
+    doc = """Usage: prog [-vqrd] [FILE]
+              prog INPUT OUTPUT
+              prog --help
+
+    Options:
+      -d --dash-arg  test this argument
+      -v             print status messages
+      -q             report only file names
+      -r             show all occurrences of the same error
+      --help
+
+    """
+    arguments = docopt.docopt(doc, "-v -d file.py")
+    assert arguments == {
+        "--dash-arg": True,
+        "-v": True,
+        "-q": False,
+        "-r": False,
+        "--help": False,
+        "FILE": "file.py",
+        "INPUT": None,
+        "OUTPUT": None,
+    }
+    assert arguments.v == True
+    assert arguments.FILE == "file.py"
+    assert arguments.dash_arg == True

@@ -651,7 +651,7 @@ class ParsedOptions(dict):
         return "{%s}" % ",\n ".join("%r: %r" % i for i in sorted(self.items()))
 
     def __getattr__(self, name: str) -> Optional[Union[str, bool]]:
-        return self.get(name) or {name: self.get(k) for k in self.keys() if name in [k.lstrip("-"), k.lstrip("<").rstrip(">")]}.get(name)
+        return self.get(name) or {name: self.get(k) for k in self.keys() if name in [k.lstrip("-").replace("-", "_"), k.lstrip("<").rstrip(">")]}.get(name)
 
 
 def docopt(
