@@ -6,6 +6,8 @@
 
 [![image](https://img.shields.io/pypi/v/docopt-ng.svg)](https://pypi.python.org/pypi/docopt-ng)
 
+[![Jazzband](https://jazzband.co/static/img/badge.svg)](https://jazzband.co/)
+
 ## CHANGELOG
 
 #### New in version 0.7.2:
