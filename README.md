@@ -1,8 +1,8 @@
 # `docopt-ng` creates *magic* command-line interfaces
 
-[![image](https://travis-ci.org/bazaar-projects/docopt-ng.svg?branch=master)](https://travis-ci.org/bazaar-projects/docopt-ng)
+[![image](https://travis-ci.org/jazzband/docopt-ng.svg?branch=master)](https://travis-ci.org/jazzband/docopt-ng)
 
-[![codecov](https://codecov.io/gh/bazaar-projects/docopt-ng/branch/master/graph/badge.svg)](https://codecov.io/gh/bazaar-projects/docopt-ng)
+[![codecov](https://codecov.io/gh/jazzband/docopt-ng/branch/master/graph/badge.svg)](https://codecov.io/gh/jazzband/docopt-ng)
 
 [![image](https://img.shields.io/pypi/v/docopt-ng.svg)](https://pypi.python.org/pypi/docopt-ng)
 
@@ -387,14 +387,14 @@ The rules are as follows:
 ## Examples
 
 We have an extensive list of
-[examples](https://github.com/bazaar-projects/docopt-ng/tree/master/examples)
+[examples](https://github.com/jazzband/docopt-ng/tree/master/examples)
 which cover every aspect of functionality of **docopt-ng**. Try them
 out, read the source if in doubt.
 
 # Development
 
 We would *love* to hear what you think about **docopt-ng** on our
-[issues page](https://github.com/bazaar-projects/docopt-ng/issues)
+[issues page](https://github.com/jazzband/docopt-ng/issues)
 
 Make pull requests, report bugs, suggest ideas and discuss
 **docopt-ng**.
