@@ -12,7 +12,8 @@ setup(
     license="MIT",
     keywords="option arguments parsing optparse argparse getopt docopt docopt-ng",
     url="https://github.com/jazzband/docopt-ng",
-    py_modules=["docopt"],
+    package_data={"docopt": ["py.typed"]},
+    packages=["docopt"],
     long_description=open("README.md").read(),
     long_description_content_type='text/markdown',
     classifiers=[
