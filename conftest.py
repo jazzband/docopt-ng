@@ -10,7 +10,7 @@ RAW_RE = re.compile("#.*$", re.M)
 
 def pytest_collect_file(path, parent):
     if path.ext == ".docopt" and path.basename.startswith("test"):
-        return DocoptTestFile(path, parent)
+        return DocoptTestFile.from_parent(fspath=path, parent=parent)
 
 
 def parse_test(raw):
@@ -37,9 +37,11 @@ class DocoptTestFile(pytest.File):
         index = 1
 
         for name, doc, cases in parse_test(raw):
-            name = self.fspath.purebasename
+            name = "%s(%d)" % (self.fspath.purebasename, index)
             for case in cases:
-                yield DocoptTestItem("%s(%d)" % (name, index), self, doc, case)
+                yield DocoptTestItem.from_parent(
+                    name=name, parent=self, doc=doc, case=case
+                )
                 index += 1
 
 
