@@ -6,8 +6,7 @@ from docopt import __version__
 
 
 class PyTestCommand(TestCommand):
-    """ Command to run unit py.test unit tests
-    """
+    """Command to run unit py.test unit tests"""
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -30,7 +29,8 @@ setup(
     license="MIT",
     keywords="option arguments parsing optparse argparse getopt docopt docopt-ng",
     url="https://github.com/bazaar-projects/docopt-ng",
-    py_modules=["docopt"],
+    package_data={"docopt": ["py.typed"]},
+    packages=["docopt"],
     long_description=open("README.md").read(),
     classifiers=[
         "Development Status :: 4 - Beta",
