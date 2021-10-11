@@ -6,7 +6,7 @@ from docopt import __version__
 
 
 class PyTestCommand(TestCommand):
-    """Command to run unit py.test unit tests"""
+    """Command to run py.test unit tests"""
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
