@@ -1,13 +1,11 @@
+import json
 import re
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
+import docopt
 import pytest
 
-import docopt
+
+RAW_RE = re.compile("#.*$", re.M)
 
 
 def pytest_collect_file(path, parent):
@@ -16,7 +14,7 @@ def pytest_collect_file(path, parent):
 
 
 def parse_test(raw):
-    raw = re.compile("#.*$", re.M).sub("", raw).strip()
+    raw = RAW_RE.sub("", raw).strip()
     if raw.startswith('"""'):
         raw = raw[3:]
 
