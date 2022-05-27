@@ -319,7 +319,7 @@ The rules are as follows:
         # will be "./here ./there", because it is not repeatable
         --not-repeatable=<arg>      [default: ./here ./there]
 
-## Examples
+# Examples
 
 We have an extensive list of
 [examples](https://github.com/jazzband/docopt-ng/tree/master/examples)
@@ -334,7 +334,7 @@ We would *love* to hear what you think about **docopt-ng** on our
 Make pull requests, report bugs, suggest ideas and discuss
 **docopt-ng**.
 
-# Testing
+## Testing
 
 You can run unit tests using the command:
 
