@@ -104,6 +104,7 @@ def test_docopt_ng_more_magic_global_arguments_and_dot_access():
 
     with raises(DocoptExit):
         docopt.docopt(doc, "--fake")
+    arguments = None
 
 
 def test_docopt_ng__doc__if_no_doc():
