@@ -27,7 +27,7 @@ import sys
 import re
 import inspect
 
-from typing import Any, Type, Union, Callable, cast
+from typing import Any, Callable, cast, Type, Tuple, Union
 
 __all__ = ["docopt", "magic_docopt", "magic", "DocoptExit"]
 __version__ = "0.7.2"
@@ -165,7 +165,7 @@ def transform(pattern: BranchPattern) -> Either:
     return Either(*[Required(*e) for e in result])
 
 
-TSingleMatch = tuple[Union[int, None], Union["LeafPattern", None]]
+TSingleMatch = Tuple[Union[int, None], Union["LeafPattern", None]]
 
 
 class LeafPattern(Pattern):
