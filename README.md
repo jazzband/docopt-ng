@@ -32,8 +32,8 @@ Options:
 from docopt import docopt
 
 
-if __name__ == '__main__':
-    arguments = docopt(__doc__, version='Naval Fate 2.0')
+if __name__ == "__main__":
+    arguments = docopt(__doc__, version="2.1.0")
     print(arguments)
 ```
 
@@ -90,7 +90,7 @@ docopt(docstring=None, argv=None, help=True, version=None, options_first=False, 
 -   `argv` is an optional argument vector; by default `docopt` uses the
     argument vector passed to your program (`sys.argv[1:]`).
     Alternatively you can supply a list of strings like
-    `['--verbose', '-o', 'hai.txt']`.
+    `["--verbose", "-o", "hai.txt"]`.
 -   `help`, by default `True`, specifies whether the parser should
     automatically print the help message (supplied as `doc`) and
     terminate, in case `-h` or `--help` option is encountered (options
@@ -134,14 +134,14 @@ ignored. For example, if you invoke the top example as:
 the return dictionary will be:
 
 ```python
-{'--drifting': False,    'mine': False,
- '--help': False,        'move': True,
- '--moored': False,      'new': False,
- '--speed': '15',        'remove': False,
- '--version': False,     'set': False,
- '<name>': ['Guardian'], 'ship': True,
- '<x>': '100',           'shoot': False,
- '<y>': '150'}
+{"--drifting": False,    "mine": False,
+ "--help": False,        "move": True,
+ "--moored": False,      "new": False,
+ "--speed": "15",        "remove": False,
+ "--version": False,     "set": False,
+ "<name>": ["Guardian"], "ship": True,
+ "<x>": "100",           "shoot": False,
+ "<y>": "150"}
 ```
 
 ...and properties can be accessed with `arguments.drifting` or `arguments.x`.
@@ -241,7 +241,7 @@ times:
     Usage: my_program.py [-v | -vv | -vvv]
 
 then number of occurrences of the option will be counted. I.e.
-`args['-v']` will be `2` if program was invoked as `my_program -vv`.
+`args["-v"]` will be `2` if program was invoked as `my_program -vv`.
 Same works for commands.
 
 If your usage patterns allows to match same-named option with argument
@@ -252,8 +252,8 @@ collected into a list:
 
 I.e. invoked with
 `my_program.py file1 file2 --path=./here --path=./there` the returned
-dict will contain `args['<file>'] == ['file1', 'file2']` and
-`args['--path'] == ['./here', './there']`.
+dict will contain `args["<file>"] == ["file1", "file2"]` and
+`args["--path"] == ["./here", "./there"]`.
 
 ## Option descriptions format
 
@@ -310,13 +310,13 @@ The rules are as follows:
                              [--another-repeatable=<arg>]...
                              [--not-repeatable=<arg>]
 
-        # will be ['./here', './there']
+        # will be ["./here", "./there"]
         --repeatable=<arg>          [default: ./here ./there]
 
-        # will be ['./here']
+        # will be ["./here"]
         --another-repeatable=<arg>  [default: ./here]
 
-        # will be './here ./there', because it is not repeatable
+        # will be "./here ./there", because it is not repeatable
         --not-repeatable=<arg>      [default: ./here ./there]
 
 ## Examples
