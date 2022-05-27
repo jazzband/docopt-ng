@@ -56,12 +56,6 @@ Use [pip](http://pip-installer.org):
 
 **docopt-ng** is tested with Python 3.7+.
 
-# Testing
-
-You can run unit tests using the command:
-
-    tox -v
-
 # API
 
 ```python
@@ -339,3 +333,9 @@ We would *love* to hear what you think about **docopt-ng** on our
 
 Make pull requests, report bugs, suggest ideas and discuss
 **docopt-ng**.
+
+# Testing
+
+You can run unit tests using the command:
+
+    tox -v
