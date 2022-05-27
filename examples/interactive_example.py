@@ -53,7 +53,7 @@ def docopt_cmd(func):
 
 
 class MyInteractive(cmd.Cmd):
-    intro = "Welcome to my interactive program!" + " (type help for a list of commands.)"
+    intro = "Welcome to my interactive program! (type help for a list of commands.)"
     prompt = "(my_program) "
     file = None
 
@@ -67,8 +67,8 @@ class MyInteractive(cmd.Cmd):
     def do_serial(self, arg):
         """Usage: serial <port> [--baud=<n>] [--timeout=<seconds>]
 
-Options:
-    --baud=<n>  Baudrate [default: 9600]
+        Options:
+            --baud=<n>  Baudrate [default: 9600]
         """
 
         print(arg)

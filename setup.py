@@ -2,20 +2,24 @@ from setuptools import setup
 
 from docopt import __version__
 
+DESCRIPTION = (
+    "Humane command line arguments parser. "
+    "Now with maintenance, typehints, and complete test coverage."
+)
 
 setup(
     name="docopt-ng",
     version=__version__,
     maintainer="itdaniher",
     maintainer_email="itdaniher@gmail.com",
-    description="Humane command line arguments parser. Now with maintenance, typehints, and complete test coverage.",
+    description=DESCRIPTION,
     license="MIT",
     keywords="option arguments parsing optparse argparse getopt docopt docopt-ng",
     url="https://github.com/jazzband/docopt-ng",
     package_data={"docopt": ["py.typed"]},
     packages=["docopt"],
     long_description=open("README.md").read(),
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Topic :: Utilities",
