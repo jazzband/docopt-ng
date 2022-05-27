@@ -5,9 +5,12 @@
 [![image](https://img.shields.io/pypi/v/docopt-ng.svg)](https://pypi.python.org/pypi/docopt-ng)
 [![Jazzband](https://jazzband.co/static/img/badge.svg)](https://jazzband.co/)
 
+**docopt-ng** is a fork of the original docopt, maintained by the
+[jazzband](https://jazzband.co/) project.
+
 **docopt-ng** helps you create beautiful command-line interfaces *magically*:
 
-``` {.sourceCode .python}
+```python
 """Naval Fate.
 
 Usage:
@@ -54,21 +57,21 @@ Use [pip](http://pip-installer.org) or easy\_install:
 Alternatively, you can just drop `docopt.py` file into your project--it
 is self-contained.
 
-**docopt-ng** is tested with Python 3.6 and 3.7.
+**docopt-ng** is tested with Python 3.7+.
 
 # Testing
 
 You can run unit tests using the command:
 
-> python setup.py test
+> tox -v
 
 # API
 
-``` {.sourceCode .python}
+```python
 from docopt import docopt
 ```
 
-``` {.sourceCode .python}
+```python
 docopt(docstring=None, argv=None, help=True, version=None, options_first=False, more_magic=False)
 ```
 
@@ -80,7 +83,7 @@ docopt(docstring=None, argv=None, help=True, version=None, options_first=False, 
     are given in next sections. Here is a quick example of such a
     string:
 
-``` {.sourceCode .python}
+```python
 """Usage: my_program.py [-hso FILE] [--quiet | --verbose] [INPUT ...]
 
 -h --help    show this
@@ -139,7 +142,7 @@ ignored. For example, if you invoke the top example as:
 
 the return dictionary will be:
 
-``` {.sourceCode .python}
+```python
 {'--drifting': False,    'mine': False,
  '--help': False,        'move': True,
  '--moored': False,      'new': False,
@@ -176,7 +179,7 @@ Their format is described below; other text is ignored.
 (case *insensitive*) and ends with a *visibly* empty line. Minimum
 example:
 
-``` {.sourceCode .python}
+```python
 """Usage: my_program.py
 
 """
@@ -186,7 +189,7 @@ The first word after `usage:` is interpreted as your program's name. You
 can specify your program's name several times to signify several
 exclusive patterns:
 
-``` {.sourceCode .python}
+```python
 """Usage: my_program.py FILE
           my_program.py COUNT FILE
 
