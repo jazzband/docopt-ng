@@ -27,7 +27,7 @@ import re
 import inspect
 
 
-from typing import Any, List, Optional, Tuple, Type, Union, Dict, Callable
+from typing import Any, List, Optional, Tuple, Type, Union, Dict, Callable, cast
 
 __all__ = ["docopt", "magic_docopt", "magic", "DocoptExit"]
 __version__ = "0.7.2"
@@ -239,6 +239,7 @@ class BranchPattern(Pattern):
                     if e.value is None:
                         e.value = []
                     elif type(e.value) is not list:
+                        e.value = cast(str, e.value)
                         e.value = e.value.split()
                 if type(e) is Command or type(e) is Option and e.argcount == 0:
                     e.value = 0
