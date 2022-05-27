@@ -34,10 +34,10 @@ prints:
  'STEP2': None}
 """
 
-print(arguments)
+print(arguments)  # noqa: F821
 
 """
 prints:
 False
 """
-print(arguments.left)
+print(arguments.left)  # noqa: F821
