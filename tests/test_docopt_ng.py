@@ -10,11 +10,17 @@ from docopt import docopt as user_provided_alias_containing_magic
 def test_docopt_ng_more_magic_spellcheck_and_expansion():
     def TS(s):
         return Tokens(s, error=DocoptExit)
+
     o = [Option("-h"), Option("-v", "--verbose"), Option(None, "--file", 1)]
     assert parse_argv(TS(""), options=o) == []
     assert parse_argv(TS("-h"), options=o) == [Option("-h", None, 0, True)]
-    assert parse_argv(TS("-V"), options=o, more_magic=True) == [Option("-v", "--verbose", 0, True)]
-    assert parse_argv(TS("-h --File f.txt"), options=o, more_magic=True) == [Option("-h", None, 0, True), Option(None, "--file", 1, "f.txt")]
+    assert parse_argv(TS("-V"), options=o, more_magic=True) == [
+        Option("-v", "--verbose", 0, True)
+    ]
+    assert parse_argv(TS("-h --File f.txt"), options=o, more_magic=True) == [
+        Option("-h", None, 0, True),
+        Option(None, "--file", 1, "f.txt"),
+    ]
     assert parse_argv(TS("-h --fiLe f.txt arg"), options=o, more_magic=True) == [
         Option("-h", None, 0, True),
         Option(None, "--file", 1, "f.txt"),
@@ -42,17 +48,41 @@ def test_docopt_ng_as_magic_docopt_more_magic_global_arguments_and_dot_access():
     """
     global arguments
     magic_docopt(doc, "-v file.py")
-    assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
+    assert arguments == {
+        "-v": True,
+        "-q": False,
+        "-r": False,
+        "--help": False,
+        "FILE": "file.py",
+        "INPUT": None,
+        "OUTPUT": None,
+    }
     assert arguments.v
     assert arguments.FILE == "file.py"
     arguments = None
     magic(doc, "-v file.py")
-    assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
+    assert arguments == {
+        "-v": True,
+        "-q": False,
+        "-r": False,
+        "--help": False,
+        "FILE": "file.py",
+        "INPUT": None,
+        "OUTPUT": None,
+    }
     assert arguments.v
     assert arguments.FILE == "file.py"
     arguments = None
     user_provided_alias_containing_magic(doc, "-v file.py")
-    assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
+    assert arguments == {
+        "-v": True,
+        "-q": False,
+        "-r": False,
+        "--help": False,
+        "FILE": "file.py",
+        "INPUT": None,
+        "OUTPUT": None,
+    }
 
 
 def test_docopt_ng_more_magic_no_make_global_arguments_if_assigned():
@@ -72,7 +102,15 @@ def test_docopt_ng_more_magic_no_make_global_arguments_if_assigned():
     arguments = None
     opts = magic_docopt(doc, argv="-v file.py")
     assert arguments is None
-    assert opts == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
+    assert opts == {
+        "-v": True,
+        "-q": False,
+        "-r": False,
+        "--help": False,
+        "FILE": "file.py",
+        "INPUT": None,
+        "OUTPUT": None,
+    }
     assert opts.v
     assert opts.FILE == "file.py"
 
@@ -91,12 +129,28 @@ def test_docopt_ng_more_magic_global_arguments_and_dot_access():
     """
     global arguments
     docopt.docopt(doc, "-v file.py", more_magic=True)
-    assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
+    assert arguments == {
+        "-v": True,
+        "-q": False,
+        "-r": False,
+        "--help": False,
+        "FILE": "file.py",
+        "INPUT": None,
+        "OUTPUT": None,
+    }
     assert arguments.v
     assert arguments.FILE == "file.py"
     arguments = None
     docopt.docopt(doc.replace("FILE", "<FILE>"), "-v", more_magic=True)
-    assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "<FILE>": None, "INPUT": None, "OUTPUT": None}
+    assert arguments == {
+        "-v": True,
+        "-q": False,
+        "-r": False,
+        "--help": False,
+        "<FILE>": None,
+        "INPUT": None,
+        "OUTPUT": None,
+    }
     assert arguments.FILE is None
 
     with raises(DocoptExit):
@@ -120,7 +174,9 @@ def test_docopt_ng__doc__if_no_doc():
 
 
 def test_docopt_ng_negative_float():
-    args = docopt.docopt("usage: prog --negative_pi=NEGPI NEGTAU", "--negative_pi -3.14 -6.28")
+    args = docopt.docopt(
+        "usage: prog --negative_pi=NEGPI NEGTAU", "--negative_pi -3.14 -6.28"
+    )
     assert args == {"--negative_pi": "-3.14", "NEGTAU": "-6.28"}
 
 
