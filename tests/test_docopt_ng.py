@@ -1,6 +1,6 @@
 import pytest
 import docopt
-from docopt import DocoptExit, DocoptLanguageError, Option, Argument, Command, OptionsShortcut, Required, NotRequired, parse_argv, Tokens
+from docopt import DocoptExit, DocoptLanguageError, Option, Argument, parse_argv, Tokens
 from pytest import raises
 from docopt import magic
 from docopt import magic_docopt
@@ -8,8 +8,9 @@ from docopt import docopt as user_provided_alias_containing_magic
 
 
 def test_docopt_ng_more_magic_spellcheck_and_expansion():
+    def TS(s):
+        return Tokens(s, error=DocoptExit)
     o = [Option("-h"), Option("-v", "--verbose"), Option(None, "--file", 1)]
-    TS = lambda s: Tokens(s, error=DocoptExit)
     assert parse_argv(TS(""), options=o) == []
     assert parse_argv(TS("-h"), options=o) == [Option("-h", None, 0, True)]
     assert parse_argv(TS("-V"), options=o, more_magic=True) == [Option("-v", "--verbose", 0, True)]
@@ -42,12 +43,12 @@ def test_docopt_ng_as_magic_docopt_more_magic_global_arguments_and_dot_access():
     global arguments
     magic_docopt(doc, "-v file.py")
     assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
-    assert arguments.v == True
+    assert arguments.v
     assert arguments.FILE == "file.py"
     arguments = None
     magic(doc, "-v file.py")
     assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
-    assert arguments.v == True
+    assert arguments.v
     assert arguments.FILE == "file.py"
     arguments = None
     user_provided_alias_containing_magic(doc, "-v file.py")
@@ -70,9 +71,9 @@ def test_docopt_ng_more_magic_no_make_global_arguments_if_assigned():
     global arguments
     arguments = None
     opts = magic_docopt(doc, argv="-v file.py")
-    assert arguments == None
+    assert arguments is None
     assert opts == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
-    assert opts.v == True
+    assert opts.v
     assert opts.FILE == "file.py"
 
 
@@ -91,13 +92,12 @@ def test_docopt_ng_more_magic_global_arguments_and_dot_access():
     global arguments
     docopt.docopt(doc, "-v file.py", more_magic=True)
     assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "FILE": "file.py", "INPUT": None, "OUTPUT": None}
-    assert arguments.v == True
+    assert arguments.v
     assert arguments.FILE == "file.py"
     arguments = None
     docopt.docopt(doc.replace("FILE", "<FILE>"), "-v", more_magic=True)
-    str_arguments = str(arguments)
     assert arguments == {"-v": True, "-q": False, "-r": False, "--help": False, "<FILE>": None, "INPUT": None, "OUTPUT": None}
-    assert arguments.FILE == None
+    assert arguments.FILE is None
 
     with raises(DocoptExit):
         docopt.docopt(doc, "-v input.py output.py")
@@ -113,7 +113,7 @@ def test_docopt_ng__doc__if_no_doc():
     assert docopt.docopt() == {"--long": ""}
     __doc__, sys.argv = "usage:\n\tprog -l <a>\noptions:\n\t-l <a>\n", [None, "-l", ""]
     assert docopt.docopt() == {"-l": ""}
-    __doc__, sys.argv = None, [None, "-l", ""]
+    __doc__, sys.argv = None, [None, "-l", ""]  # noqa: F841
     with raises(DocoptLanguageError):
         docopt.docopt()
 
@@ -125,14 +125,14 @@ def test_docopt_ng_negative_float():
 
 def test_docopt_ng_doubledash_version():
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        args = docopt.docopt("usage: prog", version=1, argv="prog --version")
+        docopt.docopt("usage: prog", version=1, argv="prog --version")
     assert pytest_wrapped_e.type == SystemExit
 
 
 def test_docopt_ng__doc__if_no_doc_indirection():
     import sys
 
-    __doc__, sys.argv = "usage: prog --long=<a>", [None, "--long="]
+    __doc__, sys.argv = "usage: prog --long=<a>", [None, "--long="]  # noqa: F841
 
     def test_indirect():
         return docopt.docopt()
@@ -169,6 +169,6 @@ def test_docopt_ng_dot_access_with_dash():
         "INPUT": None,
         "OUTPUT": None,
     }
-    assert arguments.v == True
+    assert arguments.v
     assert arguments.FILE == "file.py"
-    assert arguments.dash_arg == True
+    assert arguments.dash_arg

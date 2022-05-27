@@ -81,8 +81,9 @@ def test_formal_usage():
 
 
 def test_parse_argv():
+    def TS(s):
+        return Tokens(s, error=DocoptExit)
     o = [Option("-h"), Option("-v", "--verbose"), Option("-f", "--file", 1)]
-    TS = lambda s: Tokens(s, error=DocoptExit)
     assert parse_argv(TS(""), options=o) == []
     assert parse_argv(TS("-h"), options=o) == [Option("-h", None, 0, True)]
     assert parse_argv(TS("-h --verbose"), options=o) == [Option("-h", None, 0, True), Option("-v", "--verbose", 0, True)]
