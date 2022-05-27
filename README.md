@@ -1,71 +1,16 @@
 # `docopt-ng` creates *magic* command-line interfaces
 
-[![image](https://travis-ci.org/jazzband/docopt-ng.svg?branch=master)](https://travis-ci.org/jazzband/docopt-ng)
+[![Test](https://github.com/jazzband/docopt-ng/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/jazzband/docopt-ng/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/jazzband/docopt-ng/branch/master/graph/badge.svg)](https://codecov.io/gh/jazzband/docopt-ng)
 [![image](https://img.shields.io/pypi/v/docopt-ng.svg)](https://pypi.python.org/pypi/docopt-ng)
 [![Jazzband](https://jazzband.co/static/img/badge.svg)](https://jazzband.co/)
 
-## CHANGELOG
-
-#### New in version 0.7.2:
-
-> -   Complete MyPy typehints - ZERO errors.
->     Required refactoring class implementations, adding typing stubs, but not changing tests. :)
-> -   100% code coverage. Required the addition of a few tests.
->     Removed unused codepaths. Tagged typing stubs `pragma: no cover` as they are definitionally exercised.
-
-#### New in version 0.7.1:
-
-> -   Add `magic()` and `magic_docopt()` aliases for `docopt()` allowing easier use of new features.
-
-#### New in version 0.7.0:
-
-> -   "MORE MAGIC"
-> -   First argument is now optional - `docopt()` will look for `__doc__` defined in parent scopes.
-> -   Dot access is supported on resulting `arguments` object,
->     ignoring angle brackets and leading dashes.
-> -   `more_magic` parameter added to `docopt()` defaults False.
-> -   If `more_magic` enabled, `arguments` variable created and populated
->     in calling scope with results.
-> -   If `more_magic` enabled, fuzzy (levenshtein) autocorrect enabled for long-args.
-> -   Lots of typehints.
-> -   README moved to Markdown.
-
-#### New in version 0.6.3:
-
-> -   Catch up on \~two years of pull requests.
-> -   Fork [docopt](https://github.com/docopt/docopt) to
->     [docopt-ng](https://github.com/bazaar-projects/docopt-ng).
-> -   Add levenshtein based autocorrect from
->     [string-dist](https://github.com/obulkin/string-dist).
-> -   Add better debug / error messages.
-> -   Linting (via [black](https://github.com/ambv/black) and
->     [flake8](https://gitlab.com/pycqa/flake8)).
-
-#### New in version 0.6.2:
-
-> -   Bugfixes
->
-#### New in version 0.6.1:
->
-> -   Fix issue [\#85](https://github.com/docopt/docopt/issues/85) which
->     caused improper handling of `[options]` shortcut if it was present
->     several times.
->
-#### New in version 0.6.0:
->
-> -   New argument `options_first`, disallows interspersing options and
->     arguments. If you supply `options_first=True` to `docopt`, it will
->     interpret all arguments as positional arguments after first
->     positional argument.
-> -   If option with argument could be repeated, its default value will
->     be interpreted as space-separated list. E.g. with
->     `[default: ./here ./there]` will be interpreted as
->     `['./here', './there']`.
+**docopt-ng** is a fork of the original docopt, maintained by the
+[jazzband](https://jazzband.co/) project.
 
 **docopt-ng** helps you create beautiful command-line interfaces *magically*:
 
-``` {.sourceCode .python}
+```python
 """Naval Fate.
 
 Usage:
@@ -87,8 +32,8 @@ Options:
 from docopt import docopt
 
 
-if __name__ == '__main__':
-    arguments = docopt(__doc__, version='Naval Fate 2.0')
+if __name__ == "__main__":
+    arguments = docopt(__doc__, version="2.1.0")
     print(arguments)
 ```
 
@@ -105,28 +50,19 @@ putting help message in the module docstrings.
 
 # Installation
 
-Use [pip](http://pip-installer.org) or easy\_install:
+Use [pip](http://pip-installer.org):
 
-    pip install docopt-ng
+    python -m pip install docopt-ng
 
-Alternatively, you can just drop `docopt.py` file into your project--it
-is self-contained.
-
-**docopt-ng** is tested with Python 3.6 and 3.7.
-
-# Testing
-
-You can run unit tests using the command:
-
-> python setup.py test
+**docopt-ng** is tested with Python 3.7+.
 
 # API
 
-``` {.sourceCode .python}
+```python
 from docopt import docopt
 ```
 
-``` {.sourceCode .python}
+```python
 docopt(docstring=None, argv=None, help=True, version=None, options_first=False, more_magic=False)
 ```
 
@@ -138,7 +74,7 @@ docopt(docstring=None, argv=None, help=True, version=None, options_first=False, 
     are given in next sections. Here is a quick example of such a
     string:
 
-``` {.sourceCode .python}
+```python
 """Usage: my_program.py [-hso FILE] [--quiet | --verbose] [INPUT ...]
 
 -h --help    show this
@@ -154,7 +90,7 @@ docopt(docstring=None, argv=None, help=True, version=None, options_first=False, 
 -   `argv` is an optional argument vector; by default `docopt` uses the
     argument vector passed to your program (`sys.argv[1:]`).
     Alternatively you can supply a list of strings like
-    `['--verbose', '-o', 'hai.txt']`.
+    `["--verbose", "-o", "hai.txt"]`.
 -   `help`, by default `True`, specifies whether the parser should
     automatically print the help message (supplied as `doc`) and
     terminate, in case `-h` or `--help` option is encountered (options
@@ -197,15 +133,15 @@ ignored. For example, if you invoke the top example as:
 
 the return dictionary will be:
 
-``` {.sourceCode .python}
-{'--drifting': False,    'mine': False,
- '--help': False,        'move': True,
- '--moored': False,      'new': False,
- '--speed': '15',        'remove': False,
- '--version': False,     'set': False,
- '<name>': ['Guardian'], 'ship': True,
- '<x>': '100',           'shoot': False,
- '<y>': '150'}
+```python
+{"--drifting": False,    "mine": False,
+ "--help": False,        "move": True,
+ "--moored": False,      "new": False,
+ "--speed": "15",        "remove": False,
+ "--version": False,     "set": False,
+ "<name>": ["Guardian"], "ship": True,
+ "<x>": "100",           "shoot": False,
+ "<y>": "150"}
 ```
 
 ...and properties can be accessed with `arguments.drifting` or `arguments.x`.
@@ -234,7 +170,7 @@ Their format is described below; other text is ignored.
 (case *insensitive*) and ends with a *visibly* empty line. Minimum
 example:
 
-``` {.sourceCode .python}
+```python
 """Usage: my_program.py
 
 """
@@ -244,7 +180,7 @@ The first word after `usage:` is interpreted as your program's name. You
 can specify your program's name several times to signify several
 exclusive patterns:
 
-``` {.sourceCode .python}
+```python
 """Usage: my_program.py FILE
           my_program.py COUNT FILE
 
@@ -305,7 +241,7 @@ times:
     Usage: my_program.py [-v | -vv | -vvv]
 
 then number of occurrences of the option will be counted. I.e.
-`args['-v']` will be `2` if program was invoked as `my_program -vv`.
+`args["-v"]` will be `2` if program was invoked as `my_program -vv`.
 Same works for commands.
 
 If your usage patterns allows to match same-named option with argument
@@ -316,8 +252,8 @@ collected into a list:
 
 I.e. invoked with
 `my_program.py file1 file2 --path=./here --path=./there` the returned
-dict will contain `args['<file>'] == ['file1', 'file2']` and
-`args['--path'] == ['./here', './there']`.
+dict will contain `args["<file>"] == ["file1", "file2"]` and
+`args["--path"] == ["./here", "./there"]`.
 
 ## Option descriptions format
 
@@ -374,16 +310,16 @@ The rules are as follows:
                              [--another-repeatable=<arg>]...
                              [--not-repeatable=<arg>]
 
-        # will be ['./here', './there']
+        # will be ["./here", "./there"]
         --repeatable=<arg>          [default: ./here ./there]
 
-        # will be ['./here']
+        # will be ["./here"]
         --another-repeatable=<arg>  [default: ./here]
 
-        # will be './here ./there', because it is not repeatable
+        # will be "./here ./there", because it is not repeatable
         --not-repeatable=<arg>      [default: ./here ./there]
 
-## Examples
+# Examples
 
 We have an extensive list of
 [examples](https://github.com/jazzband/docopt-ng/tree/master/examples)
@@ -397,3 +333,9 @@ We would *love* to hear what you think about **docopt-ng** on our
 
 Make pull requests, report bugs, suggest ideas and discuss
 **docopt-ng**.
+
+## Testing
+
+You can run unit tests using the command:
+
+    tox -v
