@@ -50,12 +50,9 @@ putting help message in the module docstrings.
 
 # Installation
 
-Use [pip](http://pip-installer.org) or easy\_install:
+Use [pip](http://pip-installer.org):
 
-    pip install docopt-ng
-
-Alternatively, you can just drop `docopt.py` file into your project--it
-is self-contained.
+    python -m pip install docopt-ng
 
 **docopt-ng** is tested with Python 3.7+.
 
@@ -63,7 +60,7 @@ is self-contained.
 
 You can run unit tests using the command:
 
-> tox -v
+    tox -v
 
 # API
 
