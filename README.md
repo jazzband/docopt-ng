@@ -1,6 +1,6 @@
 # `docopt-ng` creates *magic* command-line interfaces
 
-[![image](https://travis-ci.org/jazzband/docopt-ng.svg?branch=master)](https://travis-ci.org/jazzband/docopt-ng)
+[![Test](https://github.com/jazzband/docopt-ng/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/jazzband/docopt-ng/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/jazzband/docopt-ng/branch/master/graph/badge.svg)](https://codecov.io/gh/jazzband/docopt-ng)
 [![image](https://img.shields.io/pypi/v/docopt-ng.svg)](https://pypi.python.org/pypi/docopt-ng)
 [![Jazzband](https://jazzband.co/static/img/badge.svg)](https://jazzband.co/)
