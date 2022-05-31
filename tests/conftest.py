@@ -6,16 +6,13 @@ import docopt
 import pytest
 
 
-RAW_RE = re.compile("#.*$", re.M)
-
-
 def pytest_collect_file(file_path: Path, path, parent):
     if file_path.suffix == ".docopt" and file_path.stem.startswith("test"):
         return DocoptTestFile.from_parent(path=file_path, parent=parent)
 
 
-def parse_test(raw):
-    raw = RAW_RE.sub("", raw).strip()
+def parse_test(raw: str):
+    raw = re.compile("#.*$", re.M).sub("", raw).strip()
     if raw.startswith('"""'):
         raw = raw[3:]
 
@@ -34,11 +31,11 @@ def parse_test(raw):
 
 class DocoptTestFile(pytest.File):
     def collect(self):
-        raw = self.fspath.open().read()
+        raw = self.path.open().read()
         index = 1
 
         for name, doc, cases in parse_test(raw):
-            name = "%s(%d)" % (self.fspath.purebasename, index)
+            name = f"{self.path.stem}({index})"
             for case in cases:
                 yield DocoptTestItem.from_parent(
                     name=name, parent=self, doc=doc, case=case
@@ -68,14 +65,14 @@ class DocoptTestItem(pytest.Item):
                 (
                     "usecase execution failed:",
                     self.doc.rstrip(),
-                    "$ %s %s" % (self.prog, self.argv),
-                    "result> %s" % json.dumps(excinfo.value.args[1]),
-                    "expect> %s" % json.dumps(self.expect),
+                    f"$ {self.prog} {self.argv}",
+                    f"result> {json.dumps(excinfo.value.args[1])}",
+                    f"expect> {json.dumps(self.expect)}",
                 )
             )
 
     def reportinfo(self):
-        return self.fspath, 0, "usecase: %s" % self.name
+        return self.path, 0, f"usecase: {self.name}"
 
 
 class DocoptTestException(Exception):
