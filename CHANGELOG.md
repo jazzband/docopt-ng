@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## Version 0.8.0:
+
+- Expose `DocoptExit` in `__all__`, let users to raise DocoptExit from their code
+  https://github.com/jazzband/docopt-ng/pull/8
+- Fix magic with arguments that have a dash https://github.com/jazzband/docopt-ng/pull/6
+- Add `py.typed` so now users can actuall use mypy with us!
+  https://github.com/jazzband/docopt-ng/commit/de7c861dafb86418da423d4829f389a62c82151a
+- Migrate to being maintained by Jazzband!
+- Migrate to GitHub actions from TravisCI
+- Update and tweak many little things in build, testing, and docs
+
 ## Version 0.7.2:
 
 -   Complete MyPy typehints - ZERO errors.
