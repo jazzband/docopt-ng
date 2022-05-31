@@ -1,4 +1,4 @@
-# `docopt-ng` creates *magic* command-line interfaces
+# **docopt-ng** creates *magic* command-line interfaces
 
 [![Test](https://github.com/jazzband/docopt-ng/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/jazzband/docopt-ng/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/jazzband/docopt-ng/branch/master/graph/badge.svg)](https://codecov.io/gh/jazzband/docopt-ng)
@@ -59,11 +59,14 @@ Use [pip](http://pip-installer.org):
 # API
 
 ```python
-from docopt import docopt
-```
-
-```python
-docopt(docstring=None, argv=None, help=True, version=None, options_first=False, more_magic=False)
+def docopt(
+    docstring: str | None = None,
+    argv: list[str] | str | None = None,
+    default_help: bool = True,
+    version: Any = None,
+    options_first: bool = False,
+    more_magic: bool = False,
+) -> ParsedOptions:
 ```
 
 `docopt` takes 6 optional arguments:
@@ -71,32 +74,22 @@ docopt(docstring=None, argv=None, help=True, version=None, options_first=False, 
 -   `docstring` could be a module docstring (`__doc__`) or some other string
     that contains a **help message** that will be parsed to create the
     option parser. The simple rules of how to write such a help message
-    are given in next sections. Here is a quick example of such a
-    string:
-
-```python
-"""Usage: my_program.py [-hso FILE] [--quiet | --verbose] [INPUT ...]
-
--h --help    show this
--s --sorted  sorted output
--o FILE      specify output file [default: ./test.txt]
---quiet      print less text
---verbose    print more text
-
-"""
-```
-    If it is None (not provided) - the calling scope will be interrogated for a docstring.
+    are given in next sections. If it is None (not provided), the calling scope
+    will be interrogated for a docstring.
 
 -   `argv` is an optional argument vector; by default `docopt` uses the
     argument vector passed to your program (`sys.argv[1:]`).
     Alternatively you can supply a list of strings like
-    `["--verbose", "-o", "hai.txt"]`.
--   `help`, by default `True`, specifies whether the parser should
+    `["--verbose", "-o", "hai.txt"]`, or a single string that will be split
+    on spaces like `"--verbose -o hai.txt"`.
+
+-   `default_help`, by default `True`, specifies whether the parser should
     automatically print the help message (supplied as `doc`) and
     terminate, in case `-h` or `--help` option is encountered (options
     should exist in usage pattern, more on that below). If you want to
     handle `-h` or `--help` options manually (as other options), set
     `help=False`.
+
 -   `version`, by default `None`, is an optional argument that specifies
     the version of your program. If supplied, then, (assuming
     `--version` option is mentioned in usage pattern) when parser
