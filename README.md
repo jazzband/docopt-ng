@@ -6,8 +6,8 @@
 [![Jazzband](https://jazzband.co/static/img/badge.svg)](https://jazzband.co/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**docopt-ng** is a fork of the [original docopt](https://github.com/docopt/docopt), maintained by the
-[jazzband](https://jazzband.co/) project.
+**docopt-ng** is a fork of the [original docopt](https://github.com/docopt/docopt), now maintained by the
+[jazzband](https://jazzband.co/) project. Now with maintenance, typehints, and complete test coverage!
 
 **docopt-ng** helps you create beautiful command-line interfaces *magically*:
 
