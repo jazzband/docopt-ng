@@ -17,7 +17,6 @@ def parse_test(raw: str):
         raw = raw[3:]
 
     for fixture in raw.split('r"""'):
-        name = ""
         doc, _, body = fixture.partition('"""')
         cases = []
         for case in body.split("$")[1:]:
@@ -25,22 +24,18 @@ def parse_test(raw: str):
             expect = json.loads(expect)
             prog, _, argv = argv.strip().partition(" ")
             cases.append((prog, argv, expect))
-
-        yield name, doc, cases
+        yield doc, cases
 
 
 class DocoptTestFile(pytest.File):
     def collect(self):
         raw = self.path.open().read()
-        index = 1
-
-        for name, doc, cases in parse_test(raw):
-            name = f"{self.path.stem}({index})"
+        for i, (doc, cases) in enumerate(parse_test(raw), 1):
+            name = f"{self.path.stem}({i})"
             for case in cases:
                 yield DocoptTestItem.from_parent(
                     name=name, parent=self, doc=doc, case=case
                 )
-                index += 1
 
 
 class DocoptTestItem(pytest.Item):
