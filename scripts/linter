@@ -1,6 +1,0 @@
-#!/bin/bash
-set -exu
-
-ALL_PY=$(find . -name '*.py')
-dos2unix ${ALL_PY}
-black -l 160 ${ALL_PY}
