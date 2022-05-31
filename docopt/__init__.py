@@ -30,7 +30,7 @@ import inspect
 from typing import Any, Callable, cast, Type, Tuple, Union
 
 __all__ = ["docopt", "magic_docopt", "magic", "DocoptExit"]
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 
 
 def levenshtein_norm(source: str, target: str) -> float:

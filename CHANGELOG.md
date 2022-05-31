@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Version 0.8.1:
+
+- Fixup of auto release in Github Actions
+
 ## Version 0.8.0:
 
 - Expose `DocoptExit` in `__all__`, let users to raise DocoptExit from their code
