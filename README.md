@@ -6,8 +6,8 @@
 [![Jazzband](https://jazzband.co/static/img/badge.svg)](https://jazzband.co/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**docopt-ng** is a fork of the original docopt, maintained by the
-[jazzband](https://jazzband.co/) project.
+**docopt-ng** is a fork of the [original docopt](https://github.com/docopt/docopt), now maintained by the
+[jazzband](https://jazzband.co/) project. Now with maintenance, typehints, and complete test coverage!
 
 **docopt-ng** helps you create beautiful command-line interfaces *magically*:
 
@@ -326,13 +326,20 @@ out, read the source if in doubt.
 # Development
 
 We would *love* to hear what you think about **docopt-ng** on our
-[issues page](https://github.com/jazzband/docopt-ng/issues)
+[issues page](https://github.com/jazzband/docopt-ng/issues). Make pull requests, report bugs, and suggest ideas.
 
-Make pull requests, report bugs, suggest ideas and discuss
-**docopt-ng**.
+To setup your dev environment, fork this repo, clone it locally, and then create
+a dev environment:
 
-## Testing
+    python -m venv .venv
+    source .venv/bin/activate
 
-You can run unit tests using the command:
+Then install this package as editable, as well as dev requirements.
 
-    tox -v
+    python -m pip install -e .[dev]
+
+Useful testing, linting, and formatting commands:
+
+    pytest
+    black **/*.py
+    flake8 **.*.py
