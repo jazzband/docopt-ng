@@ -31,10 +31,30 @@ Options:
 """
 from docopt import docopt
 
-
 if __name__ == "__main__":
-    arguments = docopt(__doc__, version="2.1.0")
+    argv = ["ship", "Guardian", "move", "100", "150", "--speed=15"]
+    arguments = docopt(__doc__, argv)
     print(arguments)
+```
+
+results in:
+
+```python
+{'--drifting': False,
+ '--help': False,
+ '--moored': False,
+ '--speed': '15',
+ '--version': False,
+ '<name>': ['Guardian'],
+ '<x>': '100',
+ '<y>': '150',
+ 'mine': False,
+ 'move': True,
+ 'new': False,
+ 'remove': False,
+ 'set': False,
+ 'ship': True,
+ 'shoot': False}
 ```
 
 Beat that! The option parser is generated based on the docstring above
@@ -120,24 +140,7 @@ The **return** value is a simple dictionary with options, arguments and
 commands as keys, spelled exactly like in your help message. Long
 versions of options are given priority. Furthermore, dot notation is
 supported, with preceeding dashes (`-`) and surrounding brackets (`<>`)
-ignored. For example, if you invoke the top example as:
-
-    naval_fate.py ship Guardian move 100 150 --speed=15
-
-the return dictionary will be:
-
-```python
-{"--drifting": False,    "mine": False,
- "--help": False,        "move": True,
- "--moored": False,      "new": False,
- "--speed": "15",        "remove": False,
- "--version": False,     "set": False,
- "<name>": ["Guardian"], "ship": True,
- "<x>": "100",           "shoot": False,
- "<y>": "150"}
-```
-
-...and properties can be accessed with `arguments.drifting` or `arguments.x`.
+ignored, for example `arguments.drifting` or `arguments.x`.
 
 # Help message format
 
