@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 import re
 
 import docopt
@@ -8,9 +9,9 @@ import pytest
 RAW_RE = re.compile("#.*$", re.M)
 
 
-def pytest_collect_file(path, parent):
-    if path.ext == ".docopt" and path.basename.startswith("test"):
-        return DocoptTestFile.from_parent(fspath=path, parent=parent)
+def pytest_collect_file(file_path: Path, path, parent):
+    if file_path.suffix == ".docopt" and file_path.stem.startswith("test"):
+        return DocoptTestFile.from_parent(path=file_path, parent=parent)
 
 
 def parse_test(raw):
