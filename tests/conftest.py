@@ -65,6 +65,7 @@ class DocoptTestItem(pytest.Item):
                     f"expect> {json.dumps(self.expect)}",
                 )
             )
+        return super().repr_failure(excinfo)
 
     def reportinfo(self):
         return self.path, 0, f"usecase: {self.name}"
