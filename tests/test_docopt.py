@@ -1,4 +1,7 @@
 from __future__ import with_statement
+import re
+from textwrap import dedent
+
 from docopt import (
     docopt,
     DocoptExit,
@@ -12,6 +15,7 @@ from docopt import (
     Either,
     OneOrMore,
     parse_argv,
+    parse_docstring_sections,
     parse_pattern,
     parse_section,
     parse_defaults,
@@ -19,6 +23,7 @@ from docopt import (
     Tokens,
     transform,
 )
+import pytest
 from pytest import raises
 
 
@@ -728,3 +733,103 @@ def test_parse_section():
 def test_issue_126_defaults_not_parsed_correctly_when_tabs():
     section = "Options:\n\t--foo=<arg>  [default: bar]"
     assert parse_defaults(section) == [Option(None, "--foo", 1, "bar")]
+
+
+@pytest.mark.parametrize(
+    "before",
+    [
+        pytest.param("", id="empty"),
+        pytest.param("This is a prog\n", id="1line"),
+        pytest.param("This is a prog\n\nInfo:\n Blah blah\n", id="preceding_sections"),
+    ],
+)
+@pytest.mark.parametrize(
+    "header",
+    [
+        pytest.param("usage:", id="simple"),
+        pytest.param("uSaGe:", id="odd_case"),
+        pytest.param("My Program's Usage:", id="long"),
+        pytest.param("  Indented Usage:", id="indented"),
+    ],
+)
+@pytest.mark.parametrize(
+    "body",
+    [
+        pytest.param("prog [options]", id="simple"),
+        pytest.param(" prog [options]", id="space_simple"),
+        pytest.param("\tprog [options]", id="tab_simple"),
+        pytest.param(" \t prog [options]", id="WS_simple"),
+        pytest.param("\n prog [options]", id="LF_simple"),
+        pytest.param("\n prog [options]\n", id="LF_simple_LF"),
+        pytest.param("prog [options] cmd1\n prog [options] cmd2\n", id="multiple_LF"),
+        pytest.param("\n prog [options] cmd1\n prog [options] cmd2", id="LF_multiple"),
+        pytest.param(
+            "\n prog [options] cmd1\n prog [options] cmd2\n", id="LF_multiple_LF"
+        ),
+        pytest.param(
+            """\
+ prog [options] cmd1
+   [--foo --bar]
+   [--baz --boz]
+ prog [options] cmd2
+""",
+            id="wrapped_arguments",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "after",
+    [
+        pytest.param("", id="empty"),
+        pytest.param("This can be\nany content.\n", id="text"),
+        pytest.param("Options: -a  All", id="single_line"),
+    ],
+)
+def test_parse_docstring_sections(before: str, header: str, body: str, after: str):
+    if after and not body.endswith("\n"):
+        body = body + "\n"
+    assert parse_docstring_sections(before + header + body + after) == (
+        (before, header, body, after)
+    )
+
+
+@pytest.mark.parametrize(
+    "invalid_docstring",
+    [
+        pytest.param("", id="empty"),
+        pytest.param(
+            """\
+            This doc has no usage heading
+
+                myprog [options]
+
+            Options:
+                --foo
+                --bar
+            """,
+            id="no_usage_heading",
+        ),
+        pytest.param(
+            """\
+            This doc has a blank line after the usage heading
+
+            Usage:
+
+                myprog [options]
+
+            Options:
+                --foo
+                --bar
+            """,
+            id="blank_line_after_usage_heading",
+        ),
+    ],
+)
+def test_parse_docstring_sections__reports_invalid_docstrings(invalid_docstring: str):
+    with pytest.raises(
+        DocoptLanguageError,
+        match=re.escape(
+            'Failed to parse doc: "usage:" section (case-insensitive) not found'
+        ),
+    ):
+        parse_docstring_sections(dedent(invalid_docstring))

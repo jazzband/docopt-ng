@@ -27,7 +27,7 @@ import sys
 import re
 import inspect
 
-from typing import Any, Callable, cast, Type, Tuple, Union
+from typing import Any, Callable, NamedTuple, cast, Type, Tuple, Union
 
 __all__ = ["docopt", "magic_docopt", "magic", "DocoptExit"]
 __version__ = "0.8.1"
@@ -707,6 +707,49 @@ def parse_argv(
             parsed.append(Argument(None, tokens.move()))
         current_token = tokens.current()
     return parsed
+
+
+class DocSections(NamedTuple):
+    before_usage: str
+    usage_header: str
+    usage_body: str
+    after_usage: str
+
+
+def parse_docstring_sections(docstring: str) -> DocSections:
+    """Partition the docstring into the main sections.
+
+    The docstring is returned, split into a tuple of 4 pieces: text before the
+    usage section, the usage section header, the usage section body and text
+    following the usage section.
+    """
+    usage_pattern = r"""
+    # Any number of lines precede the usage section
+    \A(?P<before_usage>(?:.*\n)*?)
+    # The `usage:` section header.
+    ^(?P<usage_header>.*usage:)
+    (?P<usage_body>
+        # The first line of the body may follow the header without a line break:
+        (?:
+            # Some non-whitespace content
+            [ \t]*\S.*(?:\n|\Z)
+            # Or after a newline, followed by indentation
+            |(?:[ \t]*\n[ \t].*(?:\n|\Z))
+        )
+        # Any number of additional indented lines
+        (?:[ \t].*(?:\n|\Z))*
+    )
+    # Everything else
+    (?P<after_usage>(?:.|\n)*)\Z
+    """
+    match = re.match(usage_pattern, docstring, flags=re.M | re.I | re.VERBOSE)
+    if not match:
+        raise DocoptLanguageError(
+            'Failed to parse doc: "usage:" section (case-insensitive) not found. '
+            "Check http://docopt.org/ for examples of how your doc should look."
+        )
+    before, header, body, after = match.groups()
+    return DocSections(before, header, body, after)
 
 
 def parse_defaults(docstring: str) -> list[Option]:
