@@ -950,8 +950,34 @@ local options: --baz
 other options:
  --egg
  --spam
--not-an-option-
-
 """
 $ prog --baz --egg
 {"--foo": false, "--baz": true, "--bar": false, "--egg": true, "--spam": false}
+
+#
+# docopt 0.6.2 compatibility: Blank line in options section
+# https://github.com/jazzband/docopt-ng/issues/33
+#
+r"""Usage: prog [options]
+
+    -h, --help
+    -v, --verbose        be verbose
+
+    -i, --interactive    interactive picking
+    -p, --patch          select hunks interactively
+"""
+$ prog --interactive
+{"--help": false, "--verbose": false, "--interactive": true, "--patch": false}
+
+#
+# docopt 0.6.2 compatibility: Options without leading whitespace
+#
+r"""Usage: prog [options]
+
+--alpha
+-b, --bravo
+-c ARG, --charlie ARG  Something [default: foo]
+"""
+
+$ prog
+{"--alpha": false, "--bravo": false, "--charlie": "foo"}

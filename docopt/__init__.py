@@ -786,39 +786,24 @@ def parse_options(docstring: str) -> list[Option]:
     ]
 
 
-def parse_defaults(docstring: str) -> list[Option]:
-    defaults = []
-    for s in parse_section("options:", docstring):
-        options_literal, _, s = s.partition(":")
-        if " " in options_literal:
-            _, _, options_literal = options_literal.partition(" ")
-        assert options_literal.lower().strip() == "options"
-        split = re.split(r"\n[ \t]*(-\S+?)", "\n" + s)[1:]
-        split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
-        for s in split:
-            if s.startswith("-"):
-                arg, _, description = s.partition("  ")
-                flag, _, var = arg.replace("=", " ").partition(" ")
-                option = Option.parse(s)
-                defaults.append(option)
-    return defaults
+def lint_docstring(sections: DocSections):
+    """Report apparent mistakes in the docstring format."""
+    if re.search("options:", sections.usage_body, flags=re.I):
+        raise DocoptLanguageError(
+            'Failed to parse docstring: "options:" (case-insensitive) was '
+            'found in "usage:" section. Use a blank line after the usage, or '
+            "start the next section without leading whitespace."
+        )
+    if re.search("usage:", sections.usage_body + sections.after_usage, flags=re.I):
+        raise DocoptLanguageError(
+            'Failed to parse docstring: More than one "usage:" '
+            "(case-insensitive) section found."
+        )
 
 
-def parse_section(name: str, source: str) -> list[str]:
-    pattern = re.compile(
-        "^([^\n]*" + name + "[^\n]*\n?(?:[ \t].*?(?:\n|$))*)",
-        re.IGNORECASE | re.MULTILINE,
-    )
-    r = [
-        s.strip() for s in pattern.findall(source) if s.strip().lower() != name.lower()
-    ]
-    return r
-
-
-def formal_usage(section: str) -> str:
-    _, _, section = section.partition(":")  # drop "usage:"
-    pu = section.split()
-    return "( " + " ".join(") | (" if s == pu[0] else s for s in pu[1:]) + " )"
+def formal_usage(usage: str) -> str:
+    program_name, *tokens = usage.split()
+    return "( " + " ".join(") | (" if s == program_name else s for s in tokens) + " )"
 
 
 def extras(
@@ -958,28 +943,15 @@ def docopt(
             or MAYBE_STORE.opname.startswith("RETURN")
         ):
             output_value_assigned = True
-    usage_sections = parse_section("usage:", docstring)
-    if len(usage_sections) == 0:
-        raise DocoptLanguageError(
-            '"usage:" section (case-insensitive) not found. '
-            "Perhaps missing indentation?"
-        )
-    if len(usage_sections) > 1:
-        raise DocoptLanguageError('More than one "usage:" (case-insensitive).')
-    options_pattern = re.compile(r"\n\s*?options:", re.IGNORECASE)
-    if options_pattern.search(usage_sections[0]):
-        raise DocoptExit(
-            "Warning: options (case-insensitive) was found in usage."
-            "Use a blank line between each section.."
-        )
-    DocoptExit.usage = usage_sections[0]
-    options = parse_defaults(docstring)
-    pattern = parse_pattern(formal_usage(DocoptExit.usage), options)
+    sections = parse_docstring_sections(docstring)
+    lint_docstring(sections)
+    DocoptExit.usage = sections.usage_header + sections.usage_body
+    options = parse_options(sections.after_usage)
+    pattern = parse_pattern(formal_usage(sections.usage_body), options)
     pattern_options = set(pattern.flat(Option))
     for options_shortcut in pattern.flat(OptionsShortcut):
-        doc_options = parse_defaults(docstring)
         options_shortcut.children = [
-            opt for opt in doc_options if opt not in pattern_options
+            opt for opt in options if opt not in pattern_options
         ]
     parsed_arg_vector = parse_argv(
         Tokens(argv), list(options), options_first, more_magic
