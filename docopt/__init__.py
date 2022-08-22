@@ -814,7 +814,7 @@ def docopt(
     arguments: dict-like
         A dictionary, where keys are names of command-line elements
         such as e.g. "--verbose" and "<path>", and values are the
-        parsed values of those elements. Also supports dot acccess.
+        parsed values of those elements. Also supports dot access.
 
     Example
     -------
