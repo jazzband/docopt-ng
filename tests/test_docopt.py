@@ -679,12 +679,13 @@ def test_issue_65_evaluate_argv_when_called_not_when_imported():
 
 
 def test_issue_71_double_dash_is_not_a_valid_option_argument():
-    with raises(DocoptExit):
+    with raises(DocoptExit, match=r"--log requires argument"):
         docopt("usage: prog [--log=LEVEL] [--] <args>...", "--log -- 1 2")
-    with raises(DocoptExit):
+    with raises(DocoptExit, match=r"-l requires argument"):
         docopt(
-            """usage: prog [-l LEVEL] [--] <args>...
-                  options: -l LEVEL""",
+            """\
+usage: prog [-l LEVEL] [--] <args>...
+options: -l LEVEL""",
             "-l -- 1 2",
         )
 
