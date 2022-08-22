@@ -15,12 +15,11 @@ from docopt import (
     NotRequired,
     Either,
     OneOrMore,
+    lint_docstring,
     parse_argv,
     parse_docstring_sections,
     parse_options,
     parse_pattern,
-    parse_section,
-    parse_defaults,
     formal_usage,
     Tokens,
     transform,
@@ -98,9 +97,9 @@ def test_formal_usage():
            prog N M
 
     prog is a program."""
-    (usage,) = parse_section("usage:", doc)
-    assert usage == "Usage: prog [-hv] ARG\n           prog N M"
-    assert formal_usage(usage) == "( [-hv] ARG ) | ( N M )"
+    _, _, usage_body, _ = parse_docstring_sections(doc)
+    assert usage_body == " prog [-hv] ARG\n           prog N M\n"
+    assert formal_usage(usage_body) == "( [-hv] ARG ) | ( N M )"
 
 
 def test_parse_argv():
@@ -697,41 +696,6 @@ options: -l LEVEL""",
         )
 
 
-usage = """usage: this
-
-usage:hai
-usage: this that
-
-usage: foo
-       bar
-
-PROGRAM USAGE:
- foo
- bar
-usage:
-\ttoo
-\ttar
-Usage: eggs spam
-BAZZ
-usage: pit stop"""
-
-
-def test_parse_section():
-    assert parse_section("usage:", "foo bar fizz buzz") == []
-    assert parse_section("usage:", "usage: prog") == ["usage: prog"]
-    assert parse_section("usage:", "usage: -x\n -y") == ["usage: -x\n -y"]
-    assert parse_section("usage:", usage) == [
-        "usage: this",
-        "usage:hai",
-        "usage: this that",
-        "usage: foo\n       bar",
-        "PROGRAM USAGE:\n foo\n bar",
-        "usage:\n\ttoo\n\ttar",
-        "Usage: eggs spam",
-        "usage: pit stop",
-    ]
-
-
 option_examples: Sequence[tuple[str, Sequence[Option]]] = [
     ("", []),
     ("Some content\nbefore the first option.", []),
@@ -921,3 +885,42 @@ def test_parse_docstring_sections__reports_invalid_docstrings(invalid_docstring:
         ),
     ):
         parse_docstring_sections(dedent(invalid_docstring))
+
+
+@pytest.mark.parametrize(
+    "doc, error_message",
+    [
+        pytest.param(
+            """\
+            My prog.
+
+            Usage:
+                myprog [options]
+                Options:
+                    --foo
+                    --bar
+            """,
+            'Failed to parse docstring: "options:" (case-insensitive) was '
+            'found in "usage:" section.',
+            id="options_in_usage",
+        ),
+        pytest.param(
+            """\
+            My prog.
+
+            Usage:
+                myprog [options]
+
+            More Usage:
+                Blah blah.
+            """,
+            'Failed to parse docstring: More than one "usage:" '
+            "(case-insensitive) section found.",
+            id="multiple_usage_sections",
+        ),
+    ],
+)
+def test_lint_docstring(doc: str, error_message: str):
+    doc_sections = parse_docstring_sections(dedent(doc))
+    with pytest.raises(DocoptLanguageError, match=re.escape(error_message)):
+        lint_docstring(doc_sections)
