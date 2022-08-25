@@ -752,6 +752,40 @@ def parse_docstring_sections(docstring: str) -> DocSections:
     return DocSections(before, header, body, after)
 
 
+def parse_options(docstring: str) -> list[Option]:
+    """Parse the option descriptions from the help text.
+
+    `docstring` is the sub-section of the overall docstring that option
+    descriptions should be parsed from. It must not contain the "usage:"
+    section, as wrapped lines in the usage pattern can be misinterpreted as
+    option descriptions.
+
+    Option descriptions appear below the usage patterns, They define synonymous
+    long and short options, options that have arguments, and the default values
+    of options' arguments. They look like this:
+
+    ```
+        -v, --verbose             Be more verbose
+        -n COUNT, --number COUNT  The number of times to
+                                do the thing  [default: 42]
+    ```
+    """
+    option_start = r"""
+    # Option descriptions begin on a new line
+    ^
+    # They may be occur on the same line as an options: section heading
+    (?:.*options:)?
+    # They can be indented with whitespace
+    [ \t]*
+    # The description itself starts with the short or long flag (-x or --xxx)
+    (-\S+?)
+    """
+    parts = re.split(option_start, docstring, flags=re.M | re.I | re.VERBOSE)[1:]
+    return [
+        Option.parse(start + rest) for (start, rest) in zip(parts[0::2], parts[1::2])
+    ]
+
+
 def parse_defaults(docstring: str) -> list[Option]:
     defaults = []
     for s in parse_section("options:", docstring):

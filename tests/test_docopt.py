@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import annotations, with_statement
+from typing import Sequence
 import re
 from textwrap import dedent
 
@@ -16,6 +17,7 @@ from docopt import (
     OneOrMore,
     parse_argv,
     parse_docstring_sections,
+    parse_options,
     parse_pattern,
     parse_section,
     parse_defaults,
@@ -730,9 +732,95 @@ def test_parse_section():
     ]
 
 
-def test_issue_126_defaults_not_parsed_correctly_when_tabs():
-    section = "Options:\n\t--foo=<arg>  [default: bar]"
-    assert parse_defaults(section) == [Option(None, "--foo", 1, "bar")]
+option_examples: Sequence[tuple[str, Sequence[Option]]] = [
+    ("", []),
+    ("Some content\nbefore the first option.", []),
+    ("-f", [Option("-f", None, 0, False)]),
+    ("-f  Description.", [Option("-f", None, 0, False)]),
+    ("-f ARG  Description.", [Option("-f", None, 1, None)]),
+    ("-f ARG  Description. [default: 42]", [Option("-f", None, 1, "42")]),
+    ("--foo", [Option(None, "--foo", 0, False)]),
+    ("--foo  Description.", [Option(None, "--foo", 0, False)]),
+    ("--foo ARG  Description.", [Option(None, "--foo", 1, None)]),
+    ("--foo ARG  Description. [default: 42]", [Option(None, "--foo", 1, "42")]),
+    # Options can wrap over multiple lines
+    (
+        """\
+         \t --foo ARG, -f ARG  With a long
+
+         wrapped description
+           \t [default: 42]
+         """,
+        [Option("-f", "--foo", 1, "42")],
+    ),
+    # Options can start after whitespace
+    (
+        "\t--foo=<arg>  [default: bar]",
+        [Option(None, "--foo", 1, "bar")],
+    ),
+    (
+        " \t -f ARG, --foo ARG  Description. [default: 42]",
+        [Option("-f", "--foo", 1, "42")],
+    ),
+    # Options can start on the same line as an "options:" heading
+    (
+        "options:-f ARG, --foo ARG  Description. [default: 42]",
+        [Option("-f", "--foo", 1, "42")],
+    ),
+    (
+        "  Special oPtioNs:  --foo ARG  Description. [default: 42]",
+        [Option(None, "--foo", 1, "42")],
+    ),
+    (
+        "  other options: --foo ARG  Description. [default: 42]",
+        [Option(None, "--foo", 1, "42")],
+    ),
+    (
+        """\
+        -a  This is the first option
+
+            -b=<x>  Options don't have to be in an options section
+
+        Options:
+            -c, --charlie  This describes the option.
+            --delta, -d
+                This option has the desc on another line.
+
+        --echo   This option starts after a blank line.
+
+            -f --foxtrot   This option has no comma
+
+        Other Options:
+            -g VAL     This option is after another section heading.
+                       [default: gval]
+        options:-h  This option is on the same line as a heading
+        oPtioNs:--india
+              oPtIons:  -j X
+
+                        [default: jval]
+            and more Options:  --k X  [default: kval]
+        """,
+        [
+            Option("-a", None, 0, False),
+            Option("-b", None, 1, None),
+            Option("-c", "--charlie", 0, False),
+            Option("-d", "--delta", 0, False),
+            Option(None, "--echo", 0, False),
+            Option("-f", "--foxtrot", 0, False),
+            Option("-g", None, 1, "gval"),
+            Option("-h", None, 0, False),
+            Option(None, "--india", 0, False),
+            Option("-j", None, 1, "jval"),
+            Option(None, "--k", 1, "kval"),
+        ],
+    ),
+]
+option_examples = [(dedent(doc), options) for (doc, options) in option_examples]
+
+
+@pytest.mark.parametrize("descriptions, options", option_examples)
+def test_parse_options(descriptions, options):
+    assert parse_options(descriptions) == options
 
 
 @pytest.mark.parametrize(
