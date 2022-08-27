@@ -32,7 +32,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest
+          pytest --cov-report term-missing --cov-report xml --cov=docopt --mypy
 
       - name: Upload coverage
         uses: codecov/codecov-action@v2

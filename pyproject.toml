@@ -2,7 +2,4 @@
 requires = ['setuptools', 'wheel']
 
 [tool.pytest.ini_options]
-addopts = "--cov-report term-missing --cov-report xml --cov=docopt --mypy"
-testpaths = [
-    "./tests",
-]
+testpaths = ["./tests"]
