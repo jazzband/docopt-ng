@@ -459,7 +459,6 @@ def test_pattern_fix_identities_2():
     assert pattern.children[0].children[1] is pattern.children[1]
 
 
-@pytest.mark.xfail(reason="parse_longer() should raise ValueError (like parse_shorts)")
 @pytest.mark.parametrize("tokens", [[], ["not_a_long_option"]])
 def test_parse_longer__rejects_inappropriate_token(tokens: list[str]):
     with raises(
