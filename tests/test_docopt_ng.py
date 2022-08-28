@@ -153,10 +153,16 @@ def test_docopt_ng_more_magic_global_arguments_and_dot_access():
     }
     assert arguments.FILE is None
 
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments.*output\.py",
+    ):
         docopt.docopt(doc, "-v input.py output.py")
 
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments.*--fake",
+    ):
         docopt.docopt(doc, "--fake")
     arguments = None
 
@@ -180,9 +186,10 @@ def test_docopt_ng_negative_float():
     assert args == {"--negative_pi": "-3.14", "NEGTAU": "-6.28"}
 
 
-def test_docopt_ng_doubledash_version():
+def test_docopt_ng_doubledash_version(capsys: pytest.CaptureFixture):
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         docopt.docopt("usage: prog", version=1, argv="prog --version")
+    assert capsys.readouterr().out == "1\n"
     assert pytest_wrapped_e.type == SystemExit
 
 

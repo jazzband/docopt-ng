@@ -90,7 +90,10 @@ def test_commands():
     assert docopt("Usage: prog (add|rm)", "add") == {"add": True, "rm": False}
     assert docopt("Usage: prog (add|rm)", "rm") == {"add": False, "rm": True}
     assert docopt("Usage: prog a b", "a b") == {"a": True, "b": True}
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments.*'b'.*'a'",
+    ):
         docopt("Usage: prog a b", "b a")
 
 
@@ -492,40 +495,48 @@ def test_long_options_error_handling():
     #        docopt('Usage: prog --non-existent', '--non-existent')
     #    with raises(DocoptLanguageError):
     #        docopt('Usage: prog --non-existent')
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments.*--non-existent",
+    ):
         docopt("Usage: prog", "--non-existent")
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*--ver\b"
+    ):
         docopt(
             "Usage: prog [--version --verbose]\n" "Options: --version\n --verbose",
             "--ver",
         )
-    with raises(DocoptLanguageError):
+    # --long is missing ARG in usage
+    with raises(DocoptLanguageError, match=r"unmatched '\('"):
         docopt("Usage: prog --long\nOptions: --long ARG")
-    with raises(DocoptExit):
+    with raises(DocoptExit, match=r"--long requires argument"):
         docopt("Usage: prog --long ARG\nOptions: --long ARG", "--long")
-    with raises(DocoptLanguageError):
+    with raises(DocoptLanguageError, match=r"--long must not have an argument"):
         docopt("Usage: prog --long=ARG\nOptions: --long")
-    with raises(DocoptExit):
+    with raises(DocoptExit, match=r"--long must not have an argument"):
         docopt("Usage: prog --long\nOptions: --long", "--long=ARG")
 
 
 def test_short_options_error_handling():
-    with raises(DocoptLanguageError):
+    with raises(DocoptLanguageError, match=r"-x is specified ambiguously 2 times"):
         docopt("Usage: prog -x\nOptions: -x  this\n -x  that")
 
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*-x"
+    ):
         docopt("Usage: prog", "-x")
 
     with raises(DocoptLanguageError):
         docopt("Usage: prog -o\nOptions: -o ARG")
-    with raises(DocoptExit):
+    with raises(DocoptExit, match=r"-o requires argument"):
         docopt("Usage: prog -o ARG\nOptions: -o ARG", "-o")
 
 
 def test_matching_paren():
-    with raises(DocoptLanguageError):
+    with raises(DocoptLanguageError, match=r"unmatched '\['"):
         docopt("Usage: prog [a [b]")
-    with raises(DocoptLanguageError):
+    with raises(DocoptLanguageError, match=r"unexpected ending: '\)'"):
         docopt("Usage: prog [a [b] ] c )")
 
 
@@ -540,11 +551,13 @@ def test_allow_double_dash():
         "<arg>": "1",
         "--": False,
     }
-    with raises(DocoptExit):  # "--" is not allowed; FIXME?
+    with raises(
+        DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*-o\b"
+    ):  # "--" is not allowed; FIXME?
         docopt("usage: prog [-o] <arg>\noptions:-o", "-- -o")
 
 
-def test_docopt():
+def test_docopt(capsys: pytest.CaptureFixture):
     doc = """Usage: prog [-v] A
 
              Options: -v  Be verbose."""
@@ -584,14 +597,23 @@ def test_docopt():
         "OUTPUT": None,
     }
 
-    with raises(DocoptExit):  # does not match
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments.*output\.py",
+    ):
         docopt(doc, "-v input.py output.py")
 
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments.*--fake",
+    ):
         docopt(doc, "--fake")
+
+    capsys.readouterr()  # clear any captured output
 
     with raises(SystemExit):
         docopt(doc, "--hel")
+    assert capsys.readouterr().out.startswith("Usage: prog")
 
 
 @pytest.mark.parametrize(
@@ -638,15 +660,24 @@ Options:
 
 
 def test_language_errors():
-    with raises(DocoptLanguageError):
+    with raises(
+        DocoptLanguageError,
+        match=r'Failed to parse doc: "usage:" section \(case-insensitive\) not '
+        r"found\. Check http://docopt\.org/ for examples of how your doc "
+        r"should look\.",
+    ):
         docopt("no usage with colon here")
-    with raises(DocoptLanguageError):
+    with raises(
+        DocoptLanguageError, match=r'More than one "usage:" \(case-insensitive\)'
+    ):
         docopt("usage: here \n\n and again usage: here")
 
 
-def test_issue_40():
+def test_issue_40(capsys: pytest.CaptureFixture):
     with raises(SystemExit):  # i.e. shows help
         docopt("usage: prog --help-commands | --help", "--help")
+    assert capsys.readouterr().out.startswith("usage: prog --help-commands | --help")
+
     assert docopt("usage: prog --aabb | --aa", "--aa") == {
         "--aabb": False,
         "--aa": True,
@@ -665,7 +696,9 @@ def test_count_multiple_flags():
     assert docopt("usage: prog [-vv]", "") == {"-v": 0}
     assert docopt("usage: prog [-vv]", "-v") == {"-v": 1}
     assert docopt("usage: prog [-vv]", "-vv") == {"-v": 2}
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*'-v'"
+    ):
         docopt("usage: prog [-vv]", "-vvv")
     assert docopt("usage: prog [-v | -vv | -vvv]", "-vvv") == {"-v": 3}
     assert docopt("usage: prog -v...", "-vvvvvv") == {"-v": 6}
@@ -673,20 +706,36 @@ def test_count_multiple_flags():
 
 
 def test_any_options_parameter():
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments"
+        r".*-f.*-o.*-o.*--bar.*--spam.*eggs",
+    ):
         docopt("usage: prog [options]", "-foo --bar --spam=eggs")
     #    assert docopt('usage: prog [options]', '-foo --bar --spam=eggs',
     #                  any_options=True) == {'-f': True, '-o': 2,
     #                                         '--bar': True, '--spam': 'eggs'}
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments"
+        r".*--foo.*--bar.*--bar",
+    ):
         docopt("usage: prog [options]", "--foo --bar --bar")
     #    assert docopt('usage: prog [options]', '--foo --bar --bar',
     #                  any_options=True) == {'--foo': True, '--bar': 2}
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments"
+        r".*--bar.*--bar.*--bar.*-f.*-f.*-f.*-f",
+    ):
         docopt("usage: prog [options]", "--bar --bar --bar -ffff")
     #    assert docopt('usage: prog [options]', '--bar --bar --bar -ffff',
     #                  any_options=True) == {'--bar': 3, '-f': 4}
-    with raises(DocoptExit):
+    with raises(
+        DocoptExit,
+        match=r"Warning: found unmatched \(duplicate\?\) arguments"
+        r".*--long.*arg.*--long.*another",
+    ):
         docopt("usage: prog [options]", "--long=arg --long=another")
 
 
@@ -762,12 +811,7 @@ def test_issue_71_double_dash_is_not_a_valid_option_argument():
     with raises(DocoptExit, match=r"--log requires argument"):
         docopt("usage: prog [--log=LEVEL] [--] <args>...", "--log -- 1 2")
     with raises(DocoptExit, match=r"-l requires argument"):
-        docopt(
-            """\
-usage: prog [-l LEVEL] [--] <args>...
-options: -l LEVEL""",
-            "-l -- 1 2",
-        )
+        docopt("usage: prog [-l LEVEL] [--] <args>...\noptions: -l LEVEL", "-l -- 1 2")
 
 
 option_examples: Sequence[tuple[str, Sequence[Option]]] = [
