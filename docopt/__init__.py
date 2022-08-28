@@ -427,7 +427,7 @@ def parse_longer(
     """longer ::= '--' chars [ ( ' ' | '=' ) chars ] ;"""
     current_token = tokens.move()
     if current_token is None or not current_token.startswith("--"):
-        raise tokens.error(
+        raise ValueError(
             f"parse_longer got what appears to be an invalid token: {current_token}"
         )
     longer, maybe_eq, maybe_value = current_token.partition("=")
