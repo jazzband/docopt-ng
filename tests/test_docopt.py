@@ -467,9 +467,6 @@ def test_parse_longer__rejects_inappropriate_token(tokens: list[str]):
         parse_longer(Tokens(tokens), [])
 
 
-# FIXME: this should raise DocoptLanguage error, not DocoptExit - it's not the
-#   (end) user's fault.
-@pytest.mark.xfail(reason="parse_longer() should raise DocoptLanguageError")
 def test_parse_longer__rejects_duplicate_long_options():
     options = [Option(None, "--foo"), Option(None, "--foo")]
     with raises(DocoptLanguageError, match=r"foo is not a unique prefix"):
@@ -482,6 +479,12 @@ def test_parse_shorts__rejects_inappropriate_token(tokens: list[str]):
         ValueError, match=r"parse_shorts got what appears to be an invalid token"
     ):
         parse_shorts(Tokens(tokens), [])
+
+
+def test_parse_shorts__rejects_duplicate_short_options():
+    options = [Option("-f"), Option("-f")]
+    with raises(DocoptLanguageError, match=r"-f is specified ambiguously 2 times"):
+        parse_shorts(Tokens("-f"), options)
 
 
 def test_long_options_error_handling():

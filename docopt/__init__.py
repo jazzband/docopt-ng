@@ -463,7 +463,7 @@ def parse_longer(
             print(f"NB: Corrected {corrected[0][0]} to {corrected[0][1].longer}")
         similar = [correct for (original, correct) in corrected]
     if len(similar) > 1:
-        raise tokens.error(f"{longer} is not a unique prefix: {similar}?")
+        raise DocoptLanguageError(f"{longer} is not a unique prefix: {similar}?")
     elif len(similar) < 1:
         argcount = 1 if maybe_eq == "=" else 0
         o = Option(None, longer, argcount)
@@ -562,8 +562,8 @@ def parse_shorts(
                     de_abbreviated = True
                     break
         if len(similar) > 1:
-            raise tokens.error(
-                "%s is specified ambiguously %d times" % (short, len(similar))
+            raise DocoptLanguageError(
+                f"{short} is specified ambiguously {len(similar)} times"
             )
         elif len(similar) < 1:
             o = Option(short, None, 0)
