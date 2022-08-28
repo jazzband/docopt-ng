@@ -4,6 +4,7 @@ import re
 from textwrap import dedent
 
 from docopt import (
+    ParsedOptions,
     docopt,
     DocoptExit,
     DocoptLanguageError,
@@ -561,6 +562,20 @@ def test_docopt():
 
     with raises(SystemExit):
         docopt(doc, "--hel")
+
+
+@pytest.mark.parametrize(
+    "items, expected",
+    [
+        ({}, "{}"),
+        (
+            {"<z>": None, "<a>": None, "--foo": "abc", "--bar": True},
+            ("{'--bar': True,\n '--foo': 'abc',\n '<a>': None,\n '<z>': None}"),
+        ),
+    ],
+)
+def test_docopt_result_dict_repr(items: dict[str, object], expected: str):
+    assert repr(ParsedOptions(items)) == expected
 
 
 @pytest.mark.parametrize(
