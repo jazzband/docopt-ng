@@ -684,13 +684,6 @@ def test_issue_40(capsys: pytest.CaptureFixture):
     }
 
 
-def test_issue34_unicode_strings():
-    try:
-        assert docopt(eval("u'usage: prog [-o <a>]'"), "") == {"-o": False, "<a>": None}
-    except SyntaxError:
-        pass  # Python 3
-
-
 def test_count_multiple_flags():
     assert docopt("usage: prog [-v]", "-v") == {"-v": True}
     assert docopt("usage: prog [-vv]", "") == {"-v": 0}
