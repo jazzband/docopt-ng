@@ -1,4 +1,4 @@
-from __future__ import annotations, with_statement
+from __future__ import annotations
 from typing import Sequence
 import re
 from textwrap import dedent
