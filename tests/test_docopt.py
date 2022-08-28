@@ -19,8 +19,10 @@ from docopt import (
     lint_docstring,
     parse_argv,
     parse_docstring_sections,
+    parse_longer,
     parse_options,
     parse_pattern,
+    parse_shorts,
     formal_usage,
     Tokens,
     transform,
@@ -455,6 +457,32 @@ def test_pattern_fix_identities_2():
     assert pattern.children[0].children[1] is not pattern.children[1]
     pattern.fix_identities()
     assert pattern.children[0].children[1] is pattern.children[1]
+
+
+@pytest.mark.xfail(reason="parse_longer() should raise ValueError (like parse_shorts)")
+@pytest.mark.parametrize("tokens", [[], ["not_a_long_option"]])
+def test_parse_longer__rejects_inappropriate_token(tokens: list[str]):
+    with raises(
+        ValueError, match=r"parse_longer got what appears to be an invalid token"
+    ):
+        parse_longer(Tokens(tokens), [])
+
+
+# FIXME: this should raise DocoptLanguage error, not DocoptExit - it's not the
+#   (end) user's fault.
+@pytest.mark.xfail(reason="parse_longer() should raise DocoptLanguageError")
+def test_parse_longer__rejects_duplicate_long_options():
+    options = [Option(None, "--foo"), Option(None, "--foo")]
+    with raises(DocoptLanguageError, match=r"foo is not a unique prefix"):
+        parse_longer(Tokens("--foo"), options)
+
+
+@pytest.mark.parametrize("tokens", [[], ["not_a_short_option"]])
+def test_parse_shorts__rejects_inappropriate_token(tokens: list[str]):
+    with raises(
+        ValueError, match=r"parse_shorts got what appears to be an invalid token"
+    ):
+        parse_shorts(Tokens(tokens), [])
 
 
 def test_long_options_error_handling():
