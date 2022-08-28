@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 import re
+from typing import Generator, Sequence
+from unittest import mock
 
 import docopt
 import pytest
@@ -96,3 +98,20 @@ class DocoptTestItem(pytest.Item):
 
 class DocoptTestException(Exception):
     pass
+
+
+@pytest.fixture(autouse=True)
+def override_sys_argv(argv: Sequence[str]) -> Generator[None, None, None]:
+    """Patch `sys.argv` with a fixed value during tests.
+
+    A lot of docopt tests call docopt() without specifying argv, which uses
+    `sys.argv` by default, so a predictable value for it is necessary.
+    """
+    with mock.patch("sys.argv", new=argv):
+        yield
+
+
+@pytest.fixture
+def argv() -> Sequence[str]:
+    """The `sys.argv` value seen inside tests."""
+    return ["exampleprogram"]
