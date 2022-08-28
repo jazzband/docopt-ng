@@ -429,7 +429,7 @@ def parse_longer(
     if current_token is None or not current_token.startswith("--"):
         raise tokens.error(
             f"parse_longer got what appears to be an invalid token: {current_token}"
-        )  # pragma: no cover
+        )
     longer, maybe_eq, maybe_value = current_token.partition("=")
     if maybe_eq == maybe_value == "":
         value = None
@@ -463,9 +463,7 @@ def parse_longer(
             print(f"NB: Corrected {corrected[0][0]} to {corrected[0][1].longer}")
         similar = [correct for (original, correct) in corrected]
     if len(similar) > 1:
-        raise tokens.error(
-            f"{longer} is not a unique prefix: {similar}?"
-        )  # pragma: no cover
+        raise tokens.error(f"{longer} is not a unique prefix: {similar}?")
     elif len(similar) < 1:
         argcount = 1 if maybe_eq == "=" else 0
         o = Option(None, longer, argcount)
@@ -497,7 +495,7 @@ def parse_shorts(
     if token is None or not token.startswith("-") or token.startswith("--"):
         raise ValueError(
             f"parse_shorts got what appears to be an invalid token: {token}"
-        )  # pragma: no cover
+        )
     left = token.lstrip("-")
     parsed: list[Pattern] = []
     while left != "":
