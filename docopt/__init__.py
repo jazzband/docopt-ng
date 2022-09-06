@@ -780,7 +780,7 @@ def parse_options(docstring: str) -> list[Option]:
     # They can be indented with whitespace
     [ \t]*
     # The description itself starts with the short or long flag (-x or --xxx)
-    (-\S+?)
+    (-\S)
     """
     parts = re.split(option_start, docstring, flags=re.M | re.I | re.VERBOSE)[1:]
     return [
