@@ -812,7 +812,12 @@ def test_parse_options(descriptions, options):
     [
         pytest.param("", id="empty"),
         pytest.param("This is a prog\n", id="1line"),
-        pytest.param("This is a prog\n\nInfo:\n Blah blah\n", id="preceding_sections"),
+        pytest.param(
+            "This is a prog\n\nInfo:\n Blah blah\n\n"
+            # contains usage: but not a usage section
+            "Ingredients in pork sausage:\nBlah blah\n",
+            id="preceding_sections",
+        ),
     ],
 )
 @pytest.mark.parametrize(
