@@ -726,8 +726,8 @@ def parse_docstring_sections(docstring: str) -> DocSections:
     following the usage section.
     """
     usage_pattern = r"""
-    # Any number of lines precede the usage section
-    \A(?P<before_usage>(?:.*\n)*?)
+    # Any number of lines (that don't include usage:) precede the usage section
+    \A(?P<before_usage>(?:(?!.*\busage:).*\n)*)
     # The `usage:` section header.
     ^(?P<usage_header>.*usage:)
     (?P<usage_body>
