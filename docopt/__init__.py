@@ -775,7 +775,7 @@ def parse_options(docstring: str) -> list[Option]:
     option_start = r"""
     # Option descriptions begin on a new line
     ^
-    # They may be occur on the same line as an options: section heading
+    # They may occur on the same line as an options: section heading
     (?:.*options:)?
     # They can be indented with whitespace
     [ \t]*
