@@ -729,7 +729,7 @@ def parse_docstring_sections(docstring: str) -> DocSections:
     # Any number of lines (that don't include usage:) precede the usage section
     \A(?P<before_usage>(?:(?!.*\busage:).*\n)*)
     # The `usage:` section header.
-    ^(?P<usage_header>.*usage:)
+    ^(?P<usage_header>.*\busage:)
     (?P<usage_body>
         # The first line of the body may follow the header without a line break:
         (?:
