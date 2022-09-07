@@ -886,20 +886,6 @@ def test_parse_docstring_sections(before: str, header: str, body: str, after: st
             """,
             id="no_usage_heading",
         ),
-        pytest.param(
-            """\
-            This doc has a blank line after the usage heading
-
-            Usage:
-
-                myprog [options]
-
-            Options:
-                --foo
-                --bar
-            """,
-            id="blank_line_after_usage_heading",
-        ),
     ],
 )
 def test_parse_docstring_sections__reports_invalid_docstrings(invalid_docstring: str):

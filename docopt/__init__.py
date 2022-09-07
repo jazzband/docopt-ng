@@ -732,12 +732,7 @@ def parse_docstring_sections(docstring: str) -> DocSections:
     ^(?P<usage_header>.*\busage:)
     (?P<usage_body>
         # The first line of the body may follow the header without a line break:
-        (?:
-            # Some non-whitespace content
-            [ \t]*\S.*(?:\n|\Z)
-            # Or after a newline, followed by indentation
-            |(?:[ \t]*\n[ \t].*(?:\n|\Z))
-        )
+        (?:.*(?:\n|\Z))
         # Any number of additional indented lines
         (?:[ \t].*(?:\n|\Z))*
     )
