@@ -982,3 +982,19 @@ r"""Usage: prog [options]
 
 $ prog
 {"--alpha": false, "--bravo": false, "--charlie": "foo"}
+
+#
+# docopt 0.6.2 compatibility: Options anywhere in doc
+#
+r"""My CLI program
+
+--speed <n>  Is allowed to be defined here in docopt 0.6.2
+             [default: 9000]
+-e, --extra-speed
+
+usage: prog [options]
+options:
+  --direction
+"""
+$ prog --direction -e
+{"--direction": true, "--extra-speed": true, "--speed": "9000"}

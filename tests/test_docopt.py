@@ -563,6 +563,35 @@ def test_docopt():
         docopt(doc, "--hel")
 
 
+@pytest.mark.parametrize(
+    "args, before_usage_val", [("", None), ("--before-usage=2", "2")]
+)
+def test_docopt__usage_descriptions_cant_bridge_usage_section(
+    args: str, before_usage_val: str | None
+):
+    # For compatibility with docopt 0.6.2 we support option descriptions
+    # before the usage and after (but not inside usage). However, a
+    # description cannot start in one part and continue in the next.
+    # i.e. the default value after Usage does not apply to
+    # --before-usage
+    usage = """\
+My prog
+
+--before-usage VAL
+
+Usage:
+    prog [options]
+
+[default: 42]
+Options:
+    --after-usage
+"""
+    assert docopt(usage, args) == {
+        "--before-usage": before_usage_val,
+        "--after-usage": False,
+    }
+
+
 def test_language_errors():
     with raises(DocoptLanguageError):
         docopt("no usage with colon here")
