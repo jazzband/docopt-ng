@@ -778,6 +778,26 @@ option_examples: Sequence[tuple[str, Sequence[Option]]] = [
             Option(None, "--k", 1, "kval"),
         ],
     ),
+    # Option with description (or other content) on following line.
+    (
+        """
+        Options:
+            -a
+            -b
+         description of b
+            -c
+        Other Options:
+            -d
+        Other Options:-e
+        """,
+        [
+            Option("-a", None, 0, False),
+            Option("-b", None, 0, False),
+            Option("-c", None, 0, False),
+            Option("-d", None, 0, False),
+            Option("-e", None, 0, False),
+        ],
+    ),
 ]
 option_examples = [(dedent(doc), options) for (doc, options) in option_examples]
 

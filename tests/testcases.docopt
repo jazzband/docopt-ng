@@ -949,10 +949,11 @@ local options: --baz
                --bar
 other options:
  --egg
+ wrapped description of egg.
  --spam
 """
-$ prog --baz --egg
-{"--foo": false, "--baz": true, "--bar": false, "--egg": true, "--spam": false}
+$ prog --baz --spam
+{"--foo": false, "--baz": true, "--bar": false, "--egg": false, "--spam": true}
 
 #
 # docopt 0.6.2 compatibility: Blank line in options section
