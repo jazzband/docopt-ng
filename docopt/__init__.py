@@ -303,7 +303,9 @@ class Option(LeafPattern):
     @classmethod
     def parse(class_, option_description: str) -> Option:
         short, longer, argcount, value = None, None, 0, False
-        options, _, description = option_description.strip().partition("  ")
+        options, description = re.split(
+            r"(?:  )|$", option_description.strip(), flags=re.M, maxsplit=1
+        )
         options = options.replace(",", " ").replace("=", " ")
         for s in options.split():
             if s.startswith("--"):
