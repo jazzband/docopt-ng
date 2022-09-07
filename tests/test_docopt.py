@@ -943,6 +943,24 @@ def test_parse_docstring_sections__reports_invalid_docstrings(invalid_docstring:
             "(case-insensitive) section found.",
             id="multiple_usage_sections",
         ),
+        pytest.param(
+            """\
+            This docstring has nothing in its usage.
+
+            Usage:""",
+            'Failed to parse docstring: "usage:" section is empty.',
+            id="empty_usage_section",
+        ),
+        pytest.param(
+            """\
+            This docstring has only whitespace in its usage.
+
+            Usage:
+
+            Options:""",
+            'Failed to parse docstring: "usage:" section is empty.',
+            id="whitespace_usage_section",
+        ),
     ],
 )
 def test_lint_docstring(doc: str, error_message: str):

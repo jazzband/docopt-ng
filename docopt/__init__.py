@@ -801,6 +801,11 @@ def lint_docstring(sections: DocSections):
             'Failed to parse docstring: More than one "usage:" '
             "(case-insensitive) section found."
         )
+    if sections.usage_body.strip() == "":
+        raise DocoptLanguageError(
+            'Failed to parse docstring: "usage:" section is empty.'
+            "Check http://docopt.org/ for examples of how your doc should look."
+        )
 
 
 def formal_usage(usage: str) -> str:
