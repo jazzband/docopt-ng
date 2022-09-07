@@ -16,14 +16,37 @@ def parse_test(raw: str):
     if raw.startswith('"""'):
         raw = raw[3:]
 
-    for fixture in raw.split('r"""'):
-        doc, _, body = fixture.partition('"""')
-        cases = []
-        for case in body.split("$")[1:]:
-            argv, _, expect = case.strip().partition("\n")
-            expect = json.loads(expect)
-            prog, _, argv = argv.strip().partition(" ")
-            cases.append((prog, argv, expect))
+    for i, fixture in enumerate(raw.split('r"""')):
+        if i == 0:
+            if not fixture.strip() == "":
+                raise DocoptTestException(
+                    f"Unexpected content before first testcase: {fixture}"
+                )
+            continue
+
+        try:
+            doc, _, body = fixture.partition('"""')
+            cases = []
+            for case in body.split("$")[1:]:
+                argv, _, expect = case.strip().partition("\n")
+                try:
+                    expect = json.loads(expect)
+                except json.JSONDecodeError as e:
+                    raise DocoptTestException(
+                        f"The test case JSON is invalid: {expect!r} - {e}."
+                    )
+                prog, _, argv = argv.strip().partition(" ")
+                cases.append((prog, argv, expect))
+            if len(cases) == 0:
+                raise DocoptTestException(
+                    "No test cases follow the doc. Each example must have at "
+                    "least one test case starting with '$'"
+                )
+        except Exception as e:
+            raise DocoptTestException(
+                f"Failed to parse test case {i}. {e}\n"
+                f'The test\'s definition is:\nr"""{fixture}'
+            ) from None
         yield doc, cases
 
 
