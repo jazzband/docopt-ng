@@ -827,6 +827,41 @@ option_examples: Sequence[tuple[str, Sequence[Option]]] = [
             Option("-e", None, 0, False),
         ],
     ),
+    # Option-like things which aren't actually options
+    (
+        """
+        --option1 <x>  This really is an option.
+                       And it has a default [default: 42]
+
+        Talking about options:
+            Here we're talking about options and defaults, like [default: 3] and
+            options such as --foo, but we're not intending to define them. And
+            although the default of 3 I just mentioned does not get picked up as
+            the default of --option1, defined above.
+
+            But if we happen to start a line of our prose with an option, like
+            -b then we are unfortunately defining an option. And "then" acts as
+            an argument for -b, so it accepts an argument.
+
+            Options are also allowed to start on the same line as an option
+            heading, so this is an option:
+            options: --option2
+
+            And this also works after several words, so options: --option3  is
+            also an option. But options after other heading-like things aren't
+            picked up, so this isn't an option:
+            things: --not-an-option
+
+        -o, --option4 <x>  This is also a real option
+        """,
+        [
+            Option(None, "--option1", 1, "42"),
+            Option("-b", None, 1, None),
+            Option(None, "--option2", 0, False),
+            Option(None, "--option3", 0, False),
+            Option("-o", "--option4", 1, None),
+        ],
+    ),
 ]
 option_examples = [(dedent(doc), options) for (doc, options) in option_examples]
 
