@@ -1,11 +1,13 @@
 import json
-from pathlib import Path
 import re
-from typing import Generator, Sequence
+from pathlib import Path
+from typing import Generator
+from typing import Sequence
 from unittest import mock
 
-import docopt
 import pytest
+
+import docopt
 
 
 def pytest_collect_file(file_path: Path, path, parent):

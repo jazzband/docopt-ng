@@ -12,5 +12,4 @@ Try: counted_example.py -vvvvvvvvvv
 """
 from docopt import docopt
 
-
 print(docopt(__doc__))

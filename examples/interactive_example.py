@@ -15,9 +15,11 @@ Options:
     --baud=<n>  Baudrate [default: 9600]
 """
 
-import sys
 import cmd
-from docopt import docopt, DocoptExit
+import sys
+
+from docopt import DocoptExit
+from docopt import docopt
 
 
 def docopt_cmd(func):

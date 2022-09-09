@@ -33,7 +33,6 @@ Options:
 """
 from docopt import docopt
 
-
 if __name__ == "__main__":
     arguments = docopt(__doc__, version="1.0.0rc2")
     print(arguments)

@@ -13,7 +13,11 @@ import os
 from docopt import docopt
 
 try:
-    from schema import Schema, And, Or, Use, SchemaError
+    from schema import And
+    from schema import Or
+    from schema import Schema
+    from schema import SchemaError
+    from schema import Use
 except ImportError:
     exit(
         "This example requires that `schema` data-validation library"
