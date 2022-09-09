@@ -23,11 +23,16 @@ Contributors (roughly in chronological order):
 """
 from __future__ import annotations
 
-import sys
-import re
 import inspect
-
-from typing import Any, Callable, NamedTuple, cast, Type, Tuple, Union
+import re
+import sys
+from typing import Any
+from typing import Callable
+from typing import NamedTuple
+from typing import Tuple
+from typing import Type
+from typing import Union
+from typing import cast
 
 __all__ = ["docopt", "magic_docopt", "magic", "DocoptExit"]
 __version__ = "0.8.1"

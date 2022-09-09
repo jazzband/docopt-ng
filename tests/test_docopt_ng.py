@@ -1,10 +1,16 @@
 import pytest
-import docopt
-from docopt import DocoptExit, DocoptLanguageError, Option, Argument, parse_argv, Tokens
 from pytest import raises
+
+import docopt
+from docopt import Argument
+from docopt import DocoptExit
+from docopt import DocoptLanguageError
+from docopt import Option
+from docopt import Tokens
+from docopt import docopt as user_provided_alias_containing_magic
 from docopt import magic
 from docopt import magic_docopt
-from docopt import docopt as user_provided_alias_containing_magic
+from docopt import parse_argv
 
 
 def test_docopt_ng_more_magic_spellcheck_and_expansion():

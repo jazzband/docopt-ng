@@ -27,7 +27,6 @@ from subprocess import call
 
 from docopt import docopt
 
-
 if __name__ == "__main__":
 
     args = docopt(__doc__, version="git version 1.7.4.4", options_first=True)
