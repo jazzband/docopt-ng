@@ -323,10 +323,11 @@ class Option(LeafPattern):
             matched = re.findall(r"\[default: (.*)\]", description, flags=re.I)
             if matched:
                 value = matched[0]
-                if value.startswith("'") and value.endswith("'"):
-                    value = value[1:-1]
-                elif value.startswith('"') and value.endswith('"'):
-                    value = value[1:-1]
+                if len(value) > 1:
+                    if value.startswith("'") and value.endswith("'"):
+                        value = value[1:-1]
+                    elif value.startswith('"') and value.endswith('"'):
+                        value = value[1:-1]
             else:
                 value = None
         return class_(short, longer, argcount, value)
