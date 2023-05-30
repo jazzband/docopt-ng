@@ -2,6 +2,8 @@
 
 ## UNRELEASED
 
+## Version 0.9.0:
+
 ### Changed
 - Tweak a few things to restore compatibility with docopt (the original repo) 0.6.2
   See PR https://github.com/jazzband/docopt-ng/pull/36 for more info
