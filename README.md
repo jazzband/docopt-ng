@@ -328,18 +328,18 @@ out, read the source if in doubt.
 We would *love* to hear what you think about **docopt-ng** on our
 [issues page](https://github.com/jazzband/docopt-ng/issues). Make pull requests, report bugs, and suggest ideas.
 
-To setup your dev environment, fork this repo, clone it locally, and then create
-a dev environment:
+To setup your dev environment, fork this repo and clone it locally.
+We use [pdm](https://pdm.fming.dev/latest/#installation) to
+manage the project, so install that first.
 
-    python -m venv .venv
-    source .venv/bin/activate
+Then install dev requirements and the package itself as editable, then
+install the pre-commit hooks:
 
-Then install this package as editable, as well as dev requirements.
-
-    python -m pip install -e .[dev]
+    pdm sync -d -G dev
+    pdm run pre-commit install
 
 Useful testing, linting, and formatting commands:
 
-    pytest
-    black **/*.py
-    flake8 **.*.py
+    pdm run pytest
+    pdm run black .
+    pdm run ruff .

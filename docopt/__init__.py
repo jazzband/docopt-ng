@@ -34,8 +34,9 @@ from typing import Type
 from typing import Union
 from typing import cast
 
+from ._version import __version__ as __version__
+
 __all__ = ["docopt", "magic_docopt", "magic", "DocoptExit"]
-__version__ = "0.8.1"
 
 
 def levenshtein_norm(source: str, target: str) -> float:
