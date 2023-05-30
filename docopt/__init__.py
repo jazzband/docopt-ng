@@ -118,8 +118,8 @@ class DocoptExit(SystemExit):
     def __init__(
         self,
         message: str = "",
-        collected: list[Pattern] = None,
-        left: list[Pattern] = None,
+        collected: list[Pattern] | None = None,
+        left: list[Pattern] | None = None,
     ) -> None:
         self.collected = collected if collected is not None else []
         self.left = left if left is not None else []
@@ -187,7 +187,7 @@ class LeafPattern(Pattern):
         return [self] if not types or type(self) in types else []
 
     def match(
-        self, left: list[LeafPattern], collected: list[Pattern] = None
+        self, left: list[LeafPattern], collected: list[Pattern] | None = None
     ) -> tuple[bool, list[LeafPattern], list[Pattern]]:
         collected = [] if collected is None else collected
         increment: Any | None = None
@@ -224,7 +224,7 @@ class BranchPattern(Pattern):
     def __init__(self, *children) -> None:
         self.children = list(children)
 
-    def match(self, left: list[Pattern], collected: list[Pattern] = None) -> Any:
+    def match(self, left: list[Pattern], collected: list[Pattern] | None = None) -> Any:
         raise NotImplementedError  # pragma: no cover
 
     def fix(self) -> "BranchPattern":
@@ -356,7 +356,7 @@ class Required(BranchPattern):
 
 
 class NotRequired(BranchPattern):
-    def match(self, left: list[Pattern], collected: list[Pattern] = None) -> Any:
+    def match(self, left: list[Pattern], collected: list[Pattern] | None = None) -> Any:
         collected = [] if collected is None else collected
         for pattern in self.children:
             _, left, collected = pattern.match(left, collected)
@@ -369,7 +369,7 @@ class OptionsShortcut(NotRequired):
 
 
 class OneOrMore(BranchPattern):
-    def match(self, left: list[Pattern], collected: list[Pattern] = None) -> Any:
+    def match(self, left: list[Pattern], collected: list[Pattern] | None = None) -> Any:
         assert len(self.children) == 1
         collected = [] if collected is None else collected
         original_collected = collected
@@ -389,7 +389,7 @@ class OneOrMore(BranchPattern):
 
 
 class Either(BranchPattern):
-    def match(self, left: list[Pattern], collected: list[Pattern] = None) -> Any:
+    def match(self, left: list[Pattern], collected: list[Pattern] | None = None) -> Any:
         collected = [] if collected is None else collected
         outcomes = []
         for pattern in self.children:
