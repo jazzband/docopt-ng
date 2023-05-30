@@ -321,7 +321,15 @@ class Option(LeafPattern):
                 argcount = 1
         if argcount:
             matched = re.findall(r"\[default: (.*)\]", description, flags=re.I)
-            value = matched[0] if matched else None
+            if matched:
+                value = matched[0]
+                if len(value) > 1:
+                    if value.startswith("'") and value.endswith("'"):
+                        value = value[1:-1]
+                    elif value.startswith('"') and value.endswith('"'):
+                        value = value[1:-1]
+            else:
+                value = None
         return class_(short, longer, argcount, value)
 
     def single_match(self, left: list[LeafPattern]) -> TSingleMatch:
