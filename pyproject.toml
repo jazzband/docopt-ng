@@ -4,7 +4,12 @@ requires = ['setuptools', 'wheel']
 [tool.pytest.ini_options]
 testpaths = ["./tests"]
 
-[tool.isort]
-profile = "black"
-# Place each import on its own line to reduce merge conflicts
-force_single_line = true
+[tool.ruff]
+select = [
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "I",  # isort
+]
+
+[tool.ruff.isort]
+force-single-line = true
