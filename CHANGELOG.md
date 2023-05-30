@@ -2,6 +2,8 @@
 
 ## UNRELEASED
 
+## Version 0.9.0:
+
 ### Changed
 
 - BREAKING: Remove `magic` stuff.
