@@ -1,4 +1,4 @@
-# **docopt-ng** creates *magic* command-line interfaces
+# **docopt-ng** creates *beautiful* command-line interfaces
 
 [![Test](https://github.com/jazzband/docopt-ng/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/jazzband/docopt-ng/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/jazzband/docopt-ng/branch/master/graph/badge.svg)](https://codecov.io/gh/jazzband/docopt-ng)
@@ -9,7 +9,7 @@
 **docopt-ng** is a fork of the [original docopt](https://github.com/docopt/docopt), now maintained by the
 [jazzband](https://jazzband.co/) project. Now with maintenance, typehints, and complete test coverage!
 
-**docopt-ng** helps you create beautiful command-line interfaces *magically*:
+**docopt-ng** helps you create beautiful command-line interfaces:
 
 ```python
 """Naval Fate.
@@ -81,22 +81,20 @@ Use [pip](http://pip-installer.org):
 
 ```python
 def docopt(
-    docstring: str | None = None,
+    docstring: str,
     argv: list[str] | str | None = None,
     default_help: bool = True,
     version: Any = None,
     options_first: bool = False,
-    more_magic: bool = False,
 ) -> ParsedOptions:
 ```
 
-`docopt` takes 6 optional arguments:
+`docopt` takes a docstring, and 4 optional arguments:
 
--   `docstring` could be a module docstring (`__doc__`) or some other string
-    that contains a **help message** that will be parsed to create the
-    option parser. The simple rules of how to write such a help message
-    are given in next sections. If it is None (not provided), the calling scope
-    will be interrogated for a docstring.
+-   `docstring` is a string that contains a **help message** that will be
+    used to create the option parser.
+    The simple rules of how to write such a help message
+    are given in next sections. Typically you would just use `__doc__`.
 
 -   `argv` is an optional argument vector; by default `docopt` uses the
     argument vector passed to your program (`sys.argv[1:]`).
@@ -128,14 +126,6 @@ def docopt(
     the look like options. This can be used for strict compatibility
     with POSIX, or if you want to dispatch your arguments to other
     programs.
-
--   `more_magic`, by default `False`. If set to `True` more advanced
-    efforts will be made to correct `--long_form` arguments, ie:
-    `--hlep` will be corrected to `--help`. Additionally, if not
-    already defined, the variable `arguments` will be created and populated
-    in the calling scope. `more_magic` is also set True if `docopt()` is
-    is aliased to a name containing `magic` ie) by built-in`from docopt import magic` or
-    user-defined `from docopt import docopt as magic_docopt_wrapper` for convenience.
 
 The **return** value is a simple dictionary with options, arguments and
 commands as keys, spelled exactly like in your help message. Long

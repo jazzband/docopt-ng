@@ -3,6 +3,32 @@
 ## UNRELEASED
 
 ### Changed
+
+- BREAKING: Remove `magic` stuff.
+
+  When using docopt(): Now you must supply `docstring` explicitly,
+  and the `more_magic` option is removed.
+
+  The `magic()` and `magic_docopt()` functions are also removed.
+
+  I had several reasons for removing this:
+
+    1. It's not needed. In 99% of cases you can just supply __doc__.
+    2. It is implicit and too magical, encouraging code that is hard to
+       reason about.
+    3. It's brittle. See https://github.com/jazzband/docopt-ng/issues/49
+    4. It is different from the spec outlined on docopt.org. I want them
+       to be more aligned, because it isn't
+       obvious to users that these two might be out of sync.
+       (no one seems to have control of that documentation site)
+    5. It fills in args in the calling scope???! We just returned
+       the parsed result, just set it manually!
+    6. It should be easy to migrate to this new version, and I don't think
+       I've broken many people.
+    7. It is out of scope. This library does one thing really well, and that
+       is parsing the docstring. You can use the old code as an example if
+       you want to re-create the magic.
+
 - Tweak a few things to restore compatibility with docopt (the original repo) 0.6.2
   See PR https://github.com/jazzband/docopt-ng/pull/36 for more info
 
