@@ -13,6 +13,10 @@ from docopt import magic_docopt
 from docopt import parse_argv
 
 
+def test_version():
+    assert isinstance(docopt.__version__, str)
+
+
 def test_docopt_ng_more_magic_spellcheck_and_expansion():
     def TS(s):
         return Tokens(s, error=DocoptExit)

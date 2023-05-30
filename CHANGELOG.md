@@ -5,24 +5,24 @@
 ### Changed
 - Tweak a few things to restore compatibility with docopt (the original repo) 0.6.2
   See PR https://github.com/jazzband/docopt-ng/pull/36 for more info
-  
+
     1. BREAKING: Restore what constitutes an "option":
        Now the important rule to follow is
        `any line starting with - or -- is treated as an option`.
        This means that some things that did NOT used to be treated
        as options, now ARE treated as options:
-           
+
            1. lines before `usage:`
            2. non-indented --options
            3. lines not inside the options: section
-       
+
        However, we also keep one part of the old behavior of this fork where in the line
        `header that ends with the keyword options: --foo`, --foo is still treated as
        an option because the start of a line up to `options:` is ignored.
-    
+
     2. BREAKING: Error messages are tweaked a little bit. Unlikely that you relied
        on them, but just in case.
-    
+
     3. NONBREAKING: Now allow for blank lines between options.
        As described in https://github.com/jazzband/docopt-ng/issues/33
 
@@ -41,6 +41,8 @@
        ```
        Now, both of these examples are treated more intuitively, where Enable
        is treated as the description
+
+- (for devs) Switch to PDM as project manager
 
 ## Version 0.8.1:
 

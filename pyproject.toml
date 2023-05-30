@@ -1,5 +1,53 @@
 [build-system]
-requires = ['setuptools', 'wheel']
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "docopt-ng"
+dynamic = ["version"]
+description = "Jazzband-maintained fork of docopt, the humane command line arguments parser."
+authors = [
+    {name = "Nick Crews", email = "nicholas.b.crews@gmail.com"},
+]
+dependencies = []
+requires-python = ">=3.7"
+license = {text = "MIT"}
+readme = "README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+[project.urls]
+Homepage = "https://github.com/jazzband/docopt-ng"
+Repository = "https://github.com/jazzband/docopt-ng"
+
+[tool.pdm.version]
+source = "file"
+path = "docopt/_version.py"
+
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "black",
+    "mypy",
+    "ruff",
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "pytest-mypy",
+]
+
 
 [tool.pytest.ini_options]
 testpaths = ["./tests"]
