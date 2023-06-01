@@ -39,25 +39,15 @@ __all__ = ["docopt", "DocoptExit", "ParsedOptions"]
 
 
 def _levenshtein_norm(source: str, target: str) -> float:
-    """Calculates the normalized Levenshtein distance between two string
-    arguments. The result will be a float in the range [0.0, 1.0], with 1.0
-    signifying the biggest possible distance between strings with these lengths
-    """
-
-    # Compute Levenshtein distance using helper function. The max is always
-    # just the length of the longer string, so this is used to normalize result
-    # before returning it
+    """Returns float in the range 0-1, with 1 meaning the biggest possible distance"""
     distance = _levenshtein(source, target)
-    return float(distance) / max(len(source), len(target))
+    return distance / max(len(source), len(target))
 
 
 def _levenshtein(source: str, target: str) -> int:
-    """Computes the Levenshtein
-    (https://en.wikipedia.org/wiki/Levenshtein_distance)
-    and restricted Damerau-Levenshtein
-    (https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance)
-    distances between two Unicode strings with given lengths using the
-    Wagner-Fischer algorithm
+    """Computes the Levenshtein distances between two strings
+
+    Uses the Wagner-Fischer algorithm
     (https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm).
     These distances are defined recursively, since the distance between two
     strings is just the cost of adjusting the last one or two characters plus
@@ -80,8 +70,6 @@ def _levenshtein(source: str, target: str) -> int:
     t_range = range(len(target) + 1)
     matrix = [[(i if j == 0 else j) for j in t_range] for i in s_range]
 
-    # Iterate through rest of matrix, filling it in with Levenshtein
-    # distances for the remaining prefix combinations
     for i in s_range[1:]:
         for j in t_range[1:]:
             # Applies the recursive logic outlined above using the values
