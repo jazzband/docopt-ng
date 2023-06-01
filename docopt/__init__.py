@@ -218,7 +218,7 @@ class _BranchPattern(_Pattern):
         self.fix_repeating_arguments()
         return self
 
-    def fix_identities(self, uniq: Any | None = None) -> None:
+    def fix_identities(self, uniq: list | None = None) -> None:
         """Make pattern-tree tips point to same object if they are equal."""
         flattened = self.flat()
         uniq = list(set(flattened)) if uniq is None else uniq
