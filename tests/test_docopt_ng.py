@@ -1,11 +1,11 @@
 import pytest
 
 import docopt
-from docopt import Argument
 from docopt import DocoptExit
-from docopt import Option
-from docopt import Tokens
-from docopt import parse_argv
+from docopt import _Argument
+from docopt import _Option
+from docopt import _parse_argv
+from docopt import _Tokens
 
 
 def test_version():
@@ -14,28 +14,28 @@ def test_version():
 
 def test_docopt_ng_more_magic_spellcheck_and_expansion():
     def TS(s):
-        return Tokens(s, error=DocoptExit)
+        return _Tokens(s, error=DocoptExit)
 
-    o = [Option("-h"), Option("-v", "--verbose"), Option(None, "--file", 1)]
-    assert parse_argv(TS(""), options=o) == []
-    assert parse_argv(TS("-h"), options=o) == [Option("-h", None, 0, True)]
-    assert parse_argv(TS("-V"), options=o, more_magic=True) == [
-        Option("-v", "--verbose", 0, True)
+    o = [_Option("-h"), _Option("-v", "--verbose"), _Option(None, "--file", 1)]
+    assert _parse_argv(TS(""), options=o) == []
+    assert _parse_argv(TS("-h"), options=o) == [_Option("-h", None, 0, True)]
+    assert _parse_argv(TS("-V"), options=o, more_magic=True) == [
+        _Option("-v", "--verbose", 0, True)
     ]
-    assert parse_argv(TS("-h --File f.txt"), options=o, more_magic=True) == [
-        Option("-h", None, 0, True),
-        Option(None, "--file", 1, "f.txt"),
+    assert _parse_argv(TS("-h --File f.txt"), options=o, more_magic=True) == [
+        _Option("-h", None, 0, True),
+        _Option(None, "--file", 1, "f.txt"),
     ]
-    assert parse_argv(TS("-h --fiLe f.txt arg"), options=o, more_magic=True) == [
-        Option("-h", None, 0, True),
-        Option(None, "--file", 1, "f.txt"),
-        Argument(None, "arg"),
+    assert _parse_argv(TS("-h --fiLe f.txt arg"), options=o, more_magic=True) == [
+        _Option("-h", None, 0, True),
+        _Option(None, "--file", 1, "f.txt"),
+        _Argument(None, "arg"),
     ]
-    assert parse_argv(TS("-h -f f.txt arg arg2"), options=o, more_magic=True) == [
-        Option("-h", None, 0, True),
-        Option(None, "--file", 1, "f.txt"),
-        Argument(None, "arg"),
-        Argument(None, "arg2"),
+    assert _parse_argv(TS("-h -f f.txt arg arg2"), options=o, more_magic=True) == [
+        _Option("-h", None, 0, True),
+        _Option(None, "--file", 1, "f.txt"),
+        _Argument(None, "arg"),
+        _Argument(None, "arg2"),
     ]
 
 
