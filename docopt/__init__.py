@@ -225,7 +225,7 @@ class _BranchPattern(_Pattern):
     ) -> Any:
         raise NotImplementedError  # pragma: no cover
 
-    def fix(self) -> "_BranchPattern":
+    def fix(self) -> _BranchPattern:
         self.fix_identities()
         self.fix_repeating_arguments()
         return self
