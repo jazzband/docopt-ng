@@ -156,7 +156,7 @@ def _transform(pattern: _BranchPattern) -> _Either:
     return _Either(*[_Required(*e) for e in result])
 
 
-_TSingleMatch = Tuple[Union[int, None], Union["_LeafPattern", None]]
+_SingleMatch = Tuple[Union[int, None], Union["_LeafPattern", None]]
 
 
 class _LeafPattern(_Pattern):
@@ -165,7 +165,7 @@ class _LeafPattern(_Pattern):
     def __repr__(self) -> str:
         return "%s(%r, %r)" % (self.__class__.__name__, self.name, self.value)
 
-    def single_match(self, left: list[_LeafPattern]) -> _TSingleMatch:
+    def single_match(self, left: list[_LeafPattern]) -> _SingleMatch:
         raise NotImplementedError  # pragma: no cover
 
     def flat(self, *types) -> list[_LeafPattern]:
@@ -258,7 +258,7 @@ class _BranchPattern(_Pattern):
 
 
 class _Argument(_LeafPattern):
-    def single_match(self, left: list[_LeafPattern]) -> _TSingleMatch:
+    def single_match(self, left: list[_LeafPattern]) -> _SingleMatch:
         for n, pattern in enumerate(left):
             if type(pattern) is _Argument:
                 return n, _Argument(self.name, pattern.value)
@@ -269,7 +269,7 @@ class _Command(_Argument):
     def __init__(self, name: str | None, value: bool = False) -> None:
         self._name, self.value = name, value
 
-    def single_match(self, left: list[_LeafPattern]) -> _TSingleMatch:
+    def single_match(self, left: list[_LeafPattern]) -> _SingleMatch:
         for n, pattern in enumerate(left):
             if type(pattern) is _Argument:
                 if pattern.value == self.name:
@@ -310,7 +310,7 @@ class _Option(_LeafPattern):
             value = matched[0] if matched else None
         return class_(short, longer, argcount, value)
 
-    def single_match(self, left: list[_LeafPattern]) -> _TSingleMatch:
+    def single_match(self, left: list[_LeafPattern]) -> _SingleMatch:
         for n, pattern in enumerate(left):
             if self.name == pattern.name:
                 return n, pattern
