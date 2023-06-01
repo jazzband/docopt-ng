@@ -292,7 +292,7 @@ class _Option(_LeafPattern):
         self.value = None if value is False and argcount else value
 
     @classmethod
-    def parse(class_, option_description: str) -> _Option:
+    def parse(cls, option_description: str) -> _Option:
         short, longer, argcount, value = None, None, 0, False
         options, description = re.split(
             r"(?:  )|$", option_description.strip(), flags=re.M, maxsplit=1
@@ -308,7 +308,7 @@ class _Option(_LeafPattern):
         if argcount:
             matched = re.findall(r"\[default: (.*)\]", description, flags=re.I)
             value = matched[0] if matched else None
-        return class_(short, longer, argcount, value)
+        return cls(short, longer, argcount, value)
 
     def single_match(self, left: list[_LeafPattern]) -> _SingleMatch:
         for n, pattern in enumerate(left):
