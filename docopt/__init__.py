@@ -156,7 +156,7 @@ def _transform(pattern: _BranchPattern) -> _Either:
     return _Either(*[_Required(*e) for e in result])
 
 
-_SingleMatch = Tuple[Union[int, None], Union["_LeafPattern", None]]
+_SingleMatch = Union[Tuple[int, "_LeafPattern"], Tuple[None, None]]
 
 
 class _LeafPattern(_Pattern):
