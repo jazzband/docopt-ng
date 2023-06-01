@@ -35,7 +35,7 @@ from typing import cast
 
 from ._version import __version__ as __version__
 
-__all__ = ["docopt", "DocoptExit"]
+__all__ = ["docopt", "DocoptExit", "ParsedOptions"]
 
 
 def levenshtein_norm(source: str, target: str) -> float:
