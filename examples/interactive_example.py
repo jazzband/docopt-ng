@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 This example uses docopt with the built in cmd module to demonstrate an
 interactive command application.
