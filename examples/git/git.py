@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
 """
 usage: git [--version] [--exec-path=<path>] [--html-path]
            [-p|--paginate|--no-pager] [--no-replace-objects]
