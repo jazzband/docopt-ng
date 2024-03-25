@@ -15,6 +15,7 @@ usage: git remote [-v | --verbose]
     -v, --verbose         be verbose; must be placed before a subcommand
 
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

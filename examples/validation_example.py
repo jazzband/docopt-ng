@@ -8,6 +8,7 @@ Options:
   --count=N   number of operations
 
 """
+
 import os
 
 from docopt import docopt

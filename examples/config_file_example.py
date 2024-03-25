@@ -4,6 +4,7 @@
   quick_example.py -h | --help | --version
 
 """
+
 from docopt import docopt
 
 
