@@ -21,6 +21,7 @@ Contributors (roughly in chronological order):
  * Copyright (c) 2019 itdaniher, itdaniher@gmail.com
 
 """
+
 from __future__ import annotations
 
 import re

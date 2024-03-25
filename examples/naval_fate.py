@@ -16,6 +16,7 @@ Options:
   --drifting    Drifting mine.
 
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@ Options:
   --right  use right-hand side
 
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":
