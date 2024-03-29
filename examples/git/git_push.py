@@ -1,4 +1,6 @@
-"""usage: git push [options] [<repository> [<refspec>...]]
+#!/usr/bin/env python3
+"""
+usage: git push [options] [<repository> [<refspec>...]]
 
     -h, --help
     -v, --verbose         be more verbose
@@ -18,8 +20,8 @@
                           receive pack program
     -u, --set-upstream    set upstream for git pull/status
     --progress            force progress reporting
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

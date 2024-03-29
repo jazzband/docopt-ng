@@ -1,4 +1,6 @@
-"""Usage: prog.py [--count=N] PATH FILE...
+#!/usr/bin/env python3
+"""
+Usage: prog.py [--count=N] PATH FILE...
 
 Arguments:
   FILE     input file
@@ -6,8 +8,8 @@ Arguments:
 
 Options:
   --count=N   number of operations
-
 """
+
 import os
 
 from docopt import docopt

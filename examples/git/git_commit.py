@@ -1,4 +1,6 @@
-"""usage: git commit [options] [--] [<filepattern>...]
+#!/usr/bin/env python3
+"""
+usage: git commit [options] [--] [<filepattern>...]
 
     -h, --help
     -q, --quiet           suppress summary after successful commit
@@ -41,8 +43,8 @@ Commit contents options
     -u, --untracked-files=<mode>
                           show untracked files, optional modes: all, normal, no.
                           [default: all]
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

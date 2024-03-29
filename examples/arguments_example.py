@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Usage: arguments_example.py [-vqrh] [FILE] ...
           arguments_example.py (--left | --right) CORRECTION FILE
 
@@ -15,8 +16,8 @@ Options:
   -r       make report
   --left   use left-hand side
   --right  use right-hand side
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

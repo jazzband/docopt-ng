@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 usage: git branch [options] [-r | -a] [--merged=<commit> | --no-merged=<commit>]
        git branch [options] [-l] [-f] <branchname> [<start-point>]
@@ -24,8 +25,8 @@ Specific git-branch actions:
     -f, --force           force creation (when already exists)
     --no-merged=<commit>  print only not merged branches
     --merged=<commit>     print only merged branches
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

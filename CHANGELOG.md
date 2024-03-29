@@ -2,6 +2,10 @@
 
 ## UNRELEASED
 
+### Changed
+
+- Switched from black to ruff for formatting. Dropped use of pre-commit.
+
 ## Version 0.9.0:
 
 ### Changed

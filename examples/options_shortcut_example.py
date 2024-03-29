@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Example of program which uses [options] shortcut in pattern.
 
 Usage:
@@ -10,8 +11,8 @@ Options:
   -t, --timeout TIMEOUT    set timeout TIMEOUT seconds
   --apply                  apply changes to database
   -q                       operate in quiet mode
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

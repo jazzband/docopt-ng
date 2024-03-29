@@ -39,7 +39,6 @@ path = "docopt/_version.py"
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "black",
     "mypy",
     "ruff",
     "pre-commit",
@@ -52,12 +51,12 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["./tests"]
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle
     "F",  # pyflakes
     "I",  # isort
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 force-single-line = true

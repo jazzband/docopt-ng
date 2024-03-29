@@ -1,7 +1,6 @@
 .*
 !.github
 !.gitignore
-!.pre-commit-config.yaml
 
 *.py[co]
 
