@@ -21,6 +21,7 @@ Contributors (roughly in chronological order):
  * Copyright (c) 2019 itdaniher, itdaniher@gmail.com
 
 """
+
 from __future__ import annotations
 
 import re
@@ -181,21 +182,21 @@ class _LeafPattern(_Pattern):
             return False, left, collected
         left_ = left[:pos] + left[(pos + 1) :]
         same_name = [a for a in collected if a.name == self.name]
-        if type(self.value) == int and len(same_name) > 0:
+        if type(self.value) == int and len(same_name) > 0:  # noqa: E721
             if isinstance(same_name[0].value, int):
                 same_name[0].value += 1
             return True, left_, collected
-        if type(self.value) == int and not same_name:
+        if type(self.value) == int and not same_name:  # noqa: E721
             match.value = 1
             return True, left_, collected + [match]
-        if same_name and type(self.value) == list:
-            if type(match.value) == str:
+        if same_name and type(self.value) == list:  # noqa: E721
+            if type(match.value) == str:  # noqa: E721
                 increment = [match.value]
             if same_name[0].value is not None and increment is not None:
                 if isinstance(same_name[0].value, type(increment)):
                     same_name[0].value += increment
             return True, left_, collected
-        elif not same_name and type(self.value) == list:
+        elif not same_name and type(self.value) == list:  # noqa: E721
             if isinstance(match.value, str):
                 match.value = [match.value]
             return True, left_, collected + [match]
@@ -238,7 +239,7 @@ class _BranchPattern(_Pattern):
                 if type(e) is _Argument or type(e) is _Option and e.argcount:
                     if e.value is None:
                         e.value = []
-                    elif type(e.value) is not list:
+                    elif type(e.value) is not list:  # noqa: E721
                         e.value = cast(str, e.value)
                         e.value = e.value.split()
                 if type(e) is _Command or type(e) is _Option and e.argcount == 0:

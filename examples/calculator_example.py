@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Not a serious example.
 
 Usage:
@@ -12,8 +13,8 @@ Examples:
 
 Options:
   -h, --help
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

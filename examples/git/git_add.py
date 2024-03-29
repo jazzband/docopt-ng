@@ -1,4 +1,6 @@
-"""usage: git add [options] [--] [<filepattern>...]
+#!/usr/bin/env python3
+"""
+usage: git add [options] [--] [<filepattern>...]
 
     -h, --help
     -n, --dry-run        dry run
@@ -14,8 +16,8 @@
     --refresh            don't add, only refresh the index
     --ignore-errors      just skip files which cannot be added because of errors
     --ignore-missing     check if - even missing - files are ignored in dry run
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

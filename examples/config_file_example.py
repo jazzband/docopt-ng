@@ -1,9 +1,11 @@
-"""Usage:
+#!/usr/bin/env python3
+"""
+Usage:
   quick_example.py tcp [<host>] [--force] [--timeout=<seconds>]
   quick_example.py serial <port> [--baud=<rate>] [--timeout=<seconds>]
   quick_example.py -h | --help | --version
-
 """
+
 from docopt import docopt
 
 

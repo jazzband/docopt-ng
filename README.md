@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/jazzband/docopt-ng/branch/master/graph/badge.svg)](https://codecov.io/gh/jazzband/docopt-ng)
 [![image](https://img.shields.io/pypi/v/docopt-ng.svg)](https://pypi.python.org/pypi/docopt-ng)
 [![Jazzband](https://jazzband.co/static/img/badge.svg)](https://jazzband.co/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 **docopt-ng** is a fork of the [original docopt](https://github.com/docopt/docopt), now maintained by the
 [jazzband](https://jazzband.co/) project. Now with maintenance, typehints, and complete test coverage!
@@ -322,14 +322,14 @@ To setup your dev environment, fork this repo and clone it locally.
 We use [pdm](https://pdm.fming.dev/latest/#installation) to
 manage the project, so install that first.
 
-Then install dev requirements and the package itself as editable, then
-install the pre-commit hooks:
+Then create a virtual env, install dev requirements and the package itself as editable,
+then install the pre-commit hooks:
 
-    pdm sync -d -G dev
+    pdm sync --dev --group dev
     pdm run pre-commit install
 
 Useful testing, linting, and formatting commands:
 
     pdm run pytest
-    pdm run black .
-    pdm run ruff .
+    pdm run ruff check .
+    pdm run ruff format .

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Example of program with many options using docopt.
 
 Usage:
@@ -29,8 +30,8 @@ Options:
   --benchmark          measure processing speed
   --testsuite=DIR      run regression tests from dir
   --doctest            run doctest on myself
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

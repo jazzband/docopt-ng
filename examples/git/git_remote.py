@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 usage: git remote [-v | --verbose]
        git remote add [-t <branch>] [-m <master>] [-f] [--mirror] <name> <url>
@@ -13,8 +14,8 @@ usage: git remote [-v | --verbose]
        git remote set-url --delete <name> <url>
 
     -v, --verbose         be verbose; must be placed before a subcommand
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

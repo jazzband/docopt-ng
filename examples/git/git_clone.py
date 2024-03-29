@@ -1,4 +1,6 @@
-"""usage: git clone [options] [--] <repo> [<dir>]
+#!/usr/bin/env python3
+"""
+usage: git clone [options] [--] <repo> [<dir>]
 
     -v, --verbose         be more verbose
     -q, --quiet           be more quiet
@@ -21,8 +23,8 @@
     -u, --upload-pack <path>
                           path to git-upload-pack on the remote
     --depth <depth>       create a shallow clone of that depth
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

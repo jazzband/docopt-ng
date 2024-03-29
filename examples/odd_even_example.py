@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Usage: odd_even_example.py [-h | --help] (ODD EVEN)...
 
 Example, try:
@@ -5,8 +6,8 @@ Example, try:
 
 Options:
   -h, --help
-
 """
+
 from docopt import docopt
 
 if __name__ == "__main__":

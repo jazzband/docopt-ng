@@ -21,8 +21,8 @@ The most commonly used git commands are:
    remote     Manage set of tracked repositories
 
 See 'git help <command>' for more information on a specific command.
-
 """
+
 from subprocess import call
 
 from docopt import docopt
