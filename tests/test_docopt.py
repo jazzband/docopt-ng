@@ -95,8 +95,11 @@ def test_commands():
     with raises(
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments.*'b'.*'a'",
-    ):
+    ) as err:
         docopt("Usage: prog a b", "b a")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [_Argument(None, "b"), _Argument(None, "a")]
 
 
 def test_formal_usage():
@@ -540,24 +543,41 @@ def test_long_options_error_handling():
     with raises(
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments.*--non-existent",
-    ):
+    ) as err:
         docopt("Usage: prog", "--non-existent")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [_Option(None, "--non-existent", 0, True)]
+
     with raises(
         DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*--ver\b"
-    ):
+    ) as err:
         docopt(
             "Usage: prog [--version --verbose]\n" "Options: --version\n --verbose",
             "--ver",
         )
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [_Option(None, "--ver", 0, True)]
+
     # --long is missing ARG in usage
     with raises(DocoptLanguageError, match=r"unmatched '\('"):
         docopt("Usage: prog --long\nOptions: --long ARG")
-    with raises(DocoptExit, match=r"--long requires argument"):
+
+    with raises(DocoptExit, match=r"--long requires argument") as err:
         docopt("Usage: prog --long ARG\nOptions: --long ARG", "--long")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == []
+
     with raises(DocoptLanguageError, match=r"--long must not have an argument"):
         docopt("Usage: prog --long=ARG\nOptions: --long")
-    with raises(DocoptExit, match=r"--long must not have an argument"):
+
+    with raises(DocoptExit, match=r"--long must not have an argument") as err:
         docopt("Usage: prog --long\nOptions: --long", "--long=ARG")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == []
 
 
 def test_short_options_error_handling():
@@ -566,13 +586,20 @@ def test_short_options_error_handling():
 
     with raises(
         DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*-x"
-    ):
+    ) as err:
         docopt("Usage: prog", "-x")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [_Option("-x", None, 0, True)]
 
     with raises(DocoptLanguageError):
         docopt("Usage: prog -o\nOptions: -o ARG")
-    with raises(DocoptExit, match=r"-o requires argument"):
+
+    with raises(DocoptExit, match=r"-o requires argument") as err:
         docopt("Usage: prog -o ARG\nOptions: -o ARG", "-o")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == []
 
 
 def test_matching_paren():
@@ -595,8 +622,11 @@ def test_allow_double_dash():
     }
     with raises(
         DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*-o\b"
-    ):  # "--" is not allowed; FIXME?
+    ) as err:  # "--" is not allowed; FIXME?
         docopt("usage: prog [-o] <arg>\noptions:-o", "-- -o")
+    exc = err.value
+    assert exc.collected == [_Argument("<arg>", "--")]
+    assert exc.left == [_Argument(None, "-o")]
 
 
 def test_docopt(capsys: pytest.CaptureFixture):
@@ -642,14 +672,23 @@ def test_docopt(capsys: pytest.CaptureFixture):
     with raises(
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments.*output\.py",
-    ):
+    ) as err:
         docopt(doc, "-v input.py output.py")
+    exc = err.value
+    assert exc.collected == [
+        _Option("-v", None, 0, True),
+        _Argument("FILE", "input.py"),
+    ]
+    assert exc.left == [_Argument(None, "output.py")]
 
     with raises(
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments.*--fake",
-    ):
+    ) as err:
         docopt(doc, "--fake")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [_Option(None, "--fake", 0, True)]
 
     capsys.readouterr()  # clear any captured output
 
@@ -733,8 +772,12 @@ def test_count_multiple_flags():
     assert docopt("usage: prog [-vv]", "-vv") == {"-v": 2}
     with raises(
         DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*'-v'"
-    ):
+    ) as err:
         docopt("usage: prog [-vv]", "-vvv")
+    exc = err.value
+    assert exc.collected == [_Option("-v", None, 0, 2)]
+    assert exc.left == [_Option("-v", None, 0, True)]
+
     assert docopt("usage: prog [-v | -vv | -vvv]", "-vvv") == {"-v": 3}
     assert docopt("usage: prog -v...", "-vvvvvv") == {"-v": 6}
     assert docopt("usage: prog [--ver --ver]", "--ver --ver") == {"--ver": 2}
@@ -745,8 +788,18 @@ def test_any_options_parameter():
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments"
         r".*-f.*-o.*-o.*--bar.*--spam.*eggs",
-    ):
+    ) as err:
         docopt("usage: prog [options]", "-foo --bar --spam=eggs")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [
+        _Option("-f", None, 0, True),
+        _Option("-o", None, 0, True),
+        _Option("-o", None, 0, True),
+        _Option(None, "--bar", 0, True),
+        _Option(None, "--spam", 1, "eggs"),
+    ]
+
     #    assert docopt('usage: prog [options]', '-foo --bar --spam=eggs',
     #                  any_options=True) == {'-f': True, '-o': 2,
     #                                         '--bar': True, '--spam': 'eggs'}
@@ -754,24 +807,50 @@ def test_any_options_parameter():
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments"
         r".*--foo.*--bar.*--bar",
-    ):
+    ) as err:
         docopt("usage: prog [options]", "--foo --bar --bar")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [
+        _Option(None, "--foo", 0, True),
+        _Option(None, "--bar", 0, True),
+        _Option(None, "--bar", 0, True),
+    ]
+
     #    assert docopt('usage: prog [options]', '--foo --bar --bar',
     #                  any_options=True) == {'--foo': True, '--bar': 2}
     with raises(
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments"
         r".*--bar.*--bar.*--bar.*-f.*-f.*-f.*-f",
-    ):
+    ) as err:
         docopt("usage: prog [options]", "--bar --bar --bar -ffff")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [
+        _Option(None, "--bar", 0, True),
+        _Option(None, "--bar", 0, True),
+        _Option(None, "--bar", 0, True),
+        _Option("-f", None, 0, True),
+        _Option("-f", None, 0, True),
+        _Option("-f", None, 0, True),
+        _Option("-f", None, 0, True),
+    ]
+
     #    assert docopt('usage: prog [options]', '--bar --bar --bar -ffff',
     #                  any_options=True) == {'--bar': 3, '-f': 4}
     with raises(
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments"
         r".*--long.*arg.*--long.*another",
-    ):
+    ) as err:
         docopt("usage: prog [options]", "--long=arg --long=another")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == [
+        _Option(None, "--long", 1, "arg"),
+        _Option(None, "--long", 1, "another"),
+    ]
 
 
 #    assert docopt('usage: prog [options]', '--long=arg --long=another',
@@ -843,10 +922,17 @@ def test_issue_65_evaluate_argv_when_called_not_when_imported():
 
 
 def test_issue_71_double_dash_is_not_a_valid_option_argument():
-    with raises(DocoptExit, match=r"--log requires argument"):
+    with raises(DocoptExit, match=r"--log requires argument") as err:
         docopt("usage: prog [--log=LEVEL] [--] <args>...", "--log -- 1 2")
-    with raises(DocoptExit, match=r"-l requires argument"):
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == []
+
+    with raises(DocoptExit, match=r"-l requires argument") as err:
         docopt("usage: prog [-l LEVEL] [--] <args>...\noptions: -l LEVEL", "-l -- 1 2")
+    exc = err.value
+    assert exc.collected == []
+    assert exc.left == []
 
 
 option_examples: Sequence[tuple[str, Sequence[_Option]]] = [
