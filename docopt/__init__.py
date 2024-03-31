@@ -919,5 +919,9 @@ def docopt(
     if matched and left == []:
         return ParsedOptions((a.name, a.value) for a in (pattern.flat() + collected))
     if left:
-        raise DocoptExit(f"Warning: found unmatched (duplicate?) arguments {left}")
+        raise DocoptExit(
+            f"Warning: found unmatched (duplicate?) arguments {left}",
+            collected=collected,
+            left=left,
+        )
     raise DocoptExit(collected=collected, left=left)
