@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import re
 import sys
+from functools import cached_property
 from typing import Any
 from typing import Callable
 from typing import NamedTuple
@@ -124,37 +125,16 @@ class _Pattern:
         return self._name
 
     def __eq__(self, other) -> bool:
-        return repr(self) == repr(other)
+        if not isinstance(other, _Pattern):
+            return NotImplemented
+        return self._repr == other._repr
 
     def __hash__(self) -> int:
-        return hash(repr(self))
+        return hash(self._repr)
 
-
-def _transform(pattern: _BranchPattern) -> _Either:
-    """Expand pattern into an (almost) equivalent one, but with single Either.
-
-    Example: ((-a | -b) (-c | -d)) => (-a -c | -a -d | -b -c | -b -d)
-    Quirks: [-a] => (-a), (-a...) => (-a -a)
-
-    """
-    result = []
-    groups = [[pattern]]
-    while groups:
-        children = groups.pop(0)
-        parents = [_Required, _NotRequired, _OptionsShortcut, _Either, _OneOrMore]
-        if any(t in map(type, children) for t in parents):
-            child = [c for c in children if type(c) in parents][0]
-            children.remove(child)
-            if type(child) is _Either:
-                for c in child.children:
-                    groups.append([c] + children)
-            elif type(child) is _OneOrMore:
-                groups.append(child.children * 2 + children)
-            else:
-                groups.append(child.children + children)
-        else:
-            result.append(children)
-    return _Either(*[_Required(*e) for e in result])
+    @cached_property
+    def _repr(self) -> str:
+        return repr(self)
 
 
 _SingleMatch = Union[Tuple[int, "_LeafPattern"], Tuple[None, None]]
@@ -393,6 +373,36 @@ class _Either(_BranchPattern):
         if outcomes:
             return min(outcomes, key=lambda outcome: len(outcome[1]))
         return False, left, collected
+
+
+_Patterns = [_Required, _NotRequired, _OptionsShortcut, _Either, _OneOrMore]
+
+
+def _transform(pattern: _BranchPattern) -> _Either:
+    """Expand pattern into an (almost) equivalent one, but with single Either.
+
+    Example: ((-a | -b) (-c | -d)) => (-a -c | -a -d | -b -c | -b -d)
+    Quirks: [-a] => (-a), (-a...) => (-a -a)
+
+    """
+    result = []
+    groups = [[pattern]]
+    while groups:
+        children = groups.pop(0)
+        offspring = [c for c in children if type(c) in _Patterns]
+        if offspring == []:
+            result.append(children)
+        else:
+            child = offspring[0]
+            children.remove(child)
+            if type(child) is _Either:
+                for c in child.children:
+                    groups.append([c] + children)
+            elif type(child) is _OneOrMore:
+                groups.append(child.children * 2 + children)
+            else:
+                groups.append(child.children + children)
+    return _Either(*[_Required(*e) for e in result])
 
 
 class _Tokens(list):
