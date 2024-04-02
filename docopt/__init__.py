@@ -125,8 +125,8 @@ class _Pattern:
         return self._name
 
     def __eq__(self, other) -> bool:
-        if not isinstance(other, _Pattern):
-            return NotImplemented
+        if type(self) != type(other):
+            return False
         return self._repr == other._repr
 
     def __hash__(self) -> int:
