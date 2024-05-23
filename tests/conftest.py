@@ -10,7 +10,7 @@ import pytest
 import docopt
 
 
-def pytest_collect_file(file_path: Path, path, parent):
+def pytest_collect_file(file_path: Path, parent):
     if file_path.suffix == ".docopt" and file_path.stem.startswith("test"):
         return DocoptTestFile.from_parent(path=file_path, parent=parent)
 
