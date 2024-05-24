@@ -12,7 +12,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up PDM
         uses: pdm-project/setup-pdm@v2
       - name: Install dependencies
@@ -28,10 +28,10 @@ jobs:
       fail-fast: false
       max-parallel: 5
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up PDM for Python ${{ matrix.python-version }}
         uses: pdm-project/setup-pdm@v2
         with:
@@ -55,7 +55,7 @@ jobs:
           pdm build
 
       - name: Save artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           # These are pure-python, so we don't need to worry about platform
           name: wheels
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: wheels
           path: dist
