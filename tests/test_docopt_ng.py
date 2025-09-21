@@ -50,7 +50,7 @@ def test_docopt_ng_doubledash_version(capsys: pytest.CaptureFixture):
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         docopt.docopt("usage: prog", version=1, argv="prog --version")
     assert capsys.readouterr().out == "1\n"
-    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.type is SystemExit
 
 
 def test_docopt_ng_dot_access_with_dash():

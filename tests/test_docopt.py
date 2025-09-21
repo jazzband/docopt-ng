@@ -92,6 +92,8 @@ def test_commands():
     assert docopt("Usage: prog (add|rm)", "add") == {"add": True, "rm": False}
     assert docopt("Usage: prog (add|rm)", "rm") == {"add": False, "rm": True}
     assert docopt("Usage: prog a b", "a b") == {"a": True, "b": True}
+    assert docopt("Usage: prog a b", ["a", "b"]) == {"a": True, "b": True}
+    assert docopt("Usage: prog a b", ("a", "b")) == {"a": True, "b": True}
     with raises(
         DocoptExit,
         match=r"Warning: found unmatched \(duplicate\?\) arguments.*'b'.*'a'",
@@ -553,7 +555,7 @@ def test_long_options_error_handling():
         DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*--ver\b"
     ) as err:
         docopt(
-            "Usage: prog [--version --verbose]\n" "Options: --version\n --verbose",
+            "Usage: prog [--version --verbose]\nOptions: --version\n --verbose",
             "--ver",
         )
     exc = err.value
@@ -885,7 +887,7 @@ def test_default_value_for_positional_arguments():
 
 def test_issue_59():
     assert docopt("usage: prog --long=<a>", "--long=") == {"--long": ""}
-    assert docopt("usage: prog -l <a>\n" "options: -l <a>", ["-l", ""]) == {"-l": ""}
+    assert docopt("usage: prog -l <a>\noptions: -l <a>", ["-l", ""]) == {"-l": ""}
 
 
 def test_options_first():
@@ -903,7 +905,7 @@ def test_options_first():
 
 
 def test_issue_68_options_shortcut_does_not_include_options_in_usage_pattern():
-    args = docopt("usage: prog [-ab] [options]\n" "options: -x\n -y", "-ax")
+    args = docopt("usage: prog [-ab] [options]\noptions: -x\n -y", "-ax")
     # Need to use `is` (not `==`) since we want to make sure
     # that they are not 1/0, but strictly True/False:
     assert args["-a"] is True

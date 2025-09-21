@@ -839,7 +839,7 @@ class ParsedOptions(dict):
 
 def docopt(
     docstring: str,
-    argv: list[str] | str | None = None,
+    argv: list[str] | tuple[str, ...] | str | None = None,
     default_help: bool = True,
     version: Any = None,
     options_first: bool = False,
@@ -899,7 +899,10 @@ def docopt(
      'serial': False,
      'tcp': True}
     """
-    argv = sys.argv[1:] if argv is None else argv
+    if argv is None:
+        argv = sys.argv[1:]
+    elif isinstance(argv, tuple):
+        argv = list(argv)
     sections = _parse_docstring_sections(docstring)
     _lint_docstring(sections)
     DocoptExit.usage = sections.usage_header + sections.usage_body
