@@ -23,16 +23,17 @@ jobs:
         run: pdm run ruff check .
 
   test:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       max-parallel: 5
       matrix:
+        os: [ ubuntu-latest ]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
         include:
           - os: ubuntu-22.04
             python-version: "3.7"
 
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
       - name: Set up PDM for Python ${{ matrix.python-version }}
