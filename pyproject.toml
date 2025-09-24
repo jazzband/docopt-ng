@@ -28,6 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -39,8 +40,7 @@ Repository = "https://github.com/jazzband/docopt-ng"
 source = "file"
 path = "docopt/_version.py"
 
-
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 dev = [
     "mypy",
     "ruff",
