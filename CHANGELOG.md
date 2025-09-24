@@ -4,7 +4,12 @@
 
 ### Changed
 
-- Switched from black to ruff for formatting. Dropped use of pre-commit.
+- refactor: function `docopt.docopt` accept tuple argv. ([#70])
+- Migrate from pdm to uv. ([#70])
+- Switched from black to ruff for formatting. Dropped use of pre-commit. ([#62])
+
+[#70]: https://github.com/jazzband/docopt-ng/pull/70
+[#62]: https://github.com/jazzband/docopt-ng/pull/62
 
 ## Version 0.9.0:
 
