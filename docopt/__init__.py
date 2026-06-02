@@ -314,7 +314,14 @@ class _Option(_LeafPattern):
     def single_match(self, left: list[_LeafPattern]) -> _SingleMatch:
         for n, pattern in enumerate(left):
             if self.name == pattern.name:
-                return n, pattern
+                value = (
+                    pattern.value.copy()
+                    if isinstance(pattern.value, list)
+                    else pattern.value
+                )
+                return n, _Option(
+                    pattern.short, pattern.longer, pattern.argcount, value
+                )
         return None, None
 
     @property
