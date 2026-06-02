@@ -765,6 +765,25 @@ def test_issue_40(capsys: pytest.CaptureFixture):
     }
 
 
+def test_issue_60_repeated_options_across_usage_alternatives():
+    doc = """
+    Usage:
+        test.py [--to=SITE]... [--] FILE...
+        test.py [--to=SITE]... --config CONFIG [[--] FILE...]
+
+    Options:
+        --config CONFIG     Configuration file.
+        --to=SITE           Target site
+    """
+
+    assert docopt(doc, "--to a --to b c") == {
+        "--": False,
+        "--config": None,
+        "--to": ["a", "b"],
+        "FILE": ["c"],
+    }
+
+
 def test_count_multiple_flags():
     assert docopt("usage: prog [-v]", "-v") == {"-v": True}
     assert docopt("usage: prog [-vv]", "") == {"-v": 0}
