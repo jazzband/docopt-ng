@@ -31,6 +31,7 @@
 ### Changed
 
 - Switched from black to ruff for formatting. Dropped use of pre-commit.
+- Began testing python 3.13 and 3.14 in CI.
 
 ## Version 0.9.0:
 
