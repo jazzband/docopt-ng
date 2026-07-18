@@ -330,6 +330,7 @@ then install the pre-commit hooks:
 
 Useful testing, linting, and formatting commands:
 
+    uv run pre-commit run --all-files
     uv run pytest
     uv run ruff check .
     uv run ruff format .
