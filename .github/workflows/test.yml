@@ -1,4 +1,4 @@
-name: Test
+name: CI
 
 on:
   pull_request:
@@ -50,21 +50,27 @@ jobs:
           name: Python ${{ matrix.python-version }}
           fail_ci_if_error: true
 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.3.2
       - name: Build wheels and sdist
-        run: |
-          uv build
-
+        run: uv build
       - name: Save artifacts
         uses: actions/upload-artifact@v4
         with:
-          # These are pure-python, so we don't need to worry about platform
-          name: wheels-${{ matrix.python-version }}
+          # These are pure-python, so one build is enough.
+          name: wheels
           path: |
             dist/*.whl
             dist/*.tar.gz
+
   release:
     needs:
       - test
+      - build
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
