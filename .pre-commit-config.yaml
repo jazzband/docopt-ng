@@ -4,7 +4,7 @@ repos:
     hooks:
     -   id: check-added-large-files # prevents giant files from being committed.
     -   id: check-ast # simply checks whether the files parse as valid python.
-    -   id: check-byte-order-marker # forbids files which have a utf-8 byte-order marker.
+    -   id: fix-byte-order-marker # removes utf-8 byte order marker.
     -   id: check-case-conflict # checks for files that would conflict in case-insensitive filesystems.
     -   id: check-executables-have-shebangs # ensures that (non-binary) executables have a shebang.
     -   id: check-json # checks json files for parseable syntax.
