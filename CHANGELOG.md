@@ -2,6 +2,32 @@
 
 ## UNRELEASED
 
+### Fixed
+
+- Fixed repeated option values across usage alternatives: matching one usage
+  alternative could mutate a parsed option object shared with another
+  alternative, so a failed branch attempt leaked value changes into later
+  branches. For example:
+
+  ```python
+  doc = """
+  Usage:
+      test.py [--to=SITE]... [--] FILE...
+      test.py [--to=SITE]... --config CONFIG [[--] FILE...]
+
+  Options:
+      --config CONFIG     Configuration file.
+      --to=SITE           Target site
+  """
+  docopt(doc, "--to a --to b c")
+  # Before: {"--to": ["a", "b", "b"], ...} — a value duplicated by the
+  #         failed attempt to match the second usage alternative.
+  # After:  {"--to": ["a", "b"], "FILE": ["c"], "--config": None, "--": False}
+  ```
+
+  See https://github.com/jazzband/docopt-ng/pull/71 and
+  https://github.com/jazzband/docopt-ng/issues/60
+
 ### Changed
 
 - Switched from black to ruff for formatting. Dropped use of pre-commit.
