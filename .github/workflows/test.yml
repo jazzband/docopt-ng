@@ -12,7 +12,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up uv
         uses: astral-sh/setup-uv@v8.3.2
       - name: Install dependencies
@@ -31,7 +31,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up uv for Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v8.3.2
         with:
@@ -45,7 +45,7 @@ jobs:
           uv run pytest --cov-report term-missing --cov-report xml --cov=docopt --mypy
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v5
         with:
           name: Python ${{ matrix.python-version }}
           fail_ci_if_error: true
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wheels
           path: dist
