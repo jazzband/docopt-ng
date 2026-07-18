@@ -319,17 +319,17 @@ We would *love* to hear what you think about **docopt-ng** on our
 [issues page](https://github.com/jazzband/docopt-ng/issues). Make pull requests, report bugs, and suggest ideas.
 
 To setup your dev environment, fork this repo and clone it locally.
-We use [pdm](https://pdm.fming.dev/latest/#installation) to
+We use [uv](https://docs.astral.sh/uv/getting-started/installation/) to
 manage the project, so install that first.
 
 Then create a virtual env, install dev requirements and the package itself as editable,
 then install the pre-commit hooks:
 
-    pdm sync --dev --group dev
-    pdm run pre-commit install
+    uv sync
+    uv run pre-commit install
 
 Useful testing, linting, and formatting commands:
 
-    pdm run pytest
-    pdm run ruff check .
-    pdm run ruff format .
+    uv run pytest
+    uv run ruff check .
+    uv run ruff format .

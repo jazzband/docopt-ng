@@ -32,6 +32,13 @@
 
 - Switched from black to ruff for formatting. Dropped use of pre-commit.
 - Began testing python 3.13 and 3.14 in CI.
+- (for devs) Switched from PDM to [uv](https://docs.astral.sh/uv/) as the
+  project/package manager, and from pdm-backend to hatchling as the build
+  backend. Dev dependencies now live in the standard `[dependency-groups]`
+  table (PEP 735).
+- Stopped testing python 3.7 in CI: neither uv nor GitHub's ubuntu-latest
+  runners can install it anymore (the 3.7 job was already failing at setup).
+  The package still declares `requires-python = ">=3.7"`.
 
 ## Version 0.9.0:
 

@@ -1,6 +1,6 @@
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "docopt-ng"
@@ -11,7 +11,8 @@ authors = [
 ]
 dependencies = []
 requires-python = ">=3.7"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE-MIT"]
 readme = "README.md"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -32,12 +33,16 @@ classifiers = [
 Homepage = "https://github.com/jazzband/docopt-ng"
 Repository = "https://github.com/jazzband/docopt-ng"
 
-[tool.pdm.version]
-source = "file"
+[tool.hatch.version]
 path = "docopt/_version.py"
 
+[tool.hatch.build.targets.wheel]
+packages = ["docopt"]
 
-[tool.pdm.dev-dependencies]
+[tool.hatch.build.targets.sdist]
+exclude = ["dist"]
+
+[dependency-groups]
 dev = [
     "mypy",
     "ruff",

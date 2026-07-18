@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v2
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.3.2
       - name: Install dependencies
-        run: pdm sync -d -G dev
+        run: uv sync
       - name: Check formatting
-        run: pdm run ruff format --check .
+        run: uv run ruff format --check .
       - name: Lint
-        run: pdm run ruff check .
+        run: uv run ruff check .
 
   test:
     runs-on: ubuntu-latest
@@ -28,21 +28,21 @@ jobs:
       fail-fast: false
       max-parallel: 5
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up PDM for Python ${{ matrix.python-version }}
-        uses: pdm-project/setup-pdm@v2
+      - name: Set up uv for Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pdm sync -d -G dev
+        run: uv sync
 
       - name: Run tests
         run: |
-          pdm run -v pytest --cov-report term-missing --cov-report xml --cov=docopt --mypy
+          uv run pytest --cov-report term-missing --cov-report xml --cov=docopt --mypy
 
       - name: Upload coverage
         uses: codecov/codecov-action@v2
@@ -52,7 +52,7 @@ jobs:
 
       - name: Build wheels and sdist
         run: |
-          pdm build
+          uv build
 
       - name: Save artifacts
         uses: actions/upload-artifact@v4
