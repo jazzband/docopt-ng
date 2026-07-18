@@ -7,6 +7,9 @@ name = "docopt-ng"
 dynamic = ["version"]
 description = "Jazzband-maintained fork of docopt, the humane command line arguments parser."
 authors = [
+    {name = "Vladimir Keleshev", email = "vladimir@keleshev.com"},
+]
+maintainers = [
     {name = "Nick Crews", email = "nicholas.b.crews@gmail.com"},
 ]
 dependencies = []
