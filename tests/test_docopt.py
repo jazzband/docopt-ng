@@ -92,14 +92,43 @@ def test_commands():
     assert docopt("Usage: prog (add|rm)", "add") == {"add": True, "rm": False}
     assert docopt("Usage: prog (add|rm)", "rm") == {"add": False, "rm": True}
     assert docopt("Usage: prog a b", "a b") == {"a": True, "b": True}
-    with raises(
-        DocoptExit,
-        match=r"Warning: found unmatched \(duplicate\?\) arguments.*'b'.*'a'",
-    ) as err:
+    # The pattern fails to match (wrong order), so argv is not "unexpected";
+    # the error is just the usage text.
+    with raises(DocoptExit) as err:
         docopt("Usage: prog a b", "b a")
     exc = err.value
+    assert str(exc) == "Usage: prog a b"
     assert exc.collected == []
     assert exc.left == [_Argument(None, "b"), _Argument(None, "a")]
+
+
+def test_missing_required_positional_is_not_reported_as_unexpected():
+    with raises(DocoptExit) as err:
+        docopt("Usage: prog <arg1> <arg2>", "1")
+    assert str(err.value) == "Usage: prog <arg1> <arg2>"
+
+
+def test_correct_command_with_missing_argument_is_not_reported_as_unexpected():
+    with raises(DocoptExit) as err:
+        docopt("Usage: prog tcp <host>", "tcp")
+    assert str(err.value) == "Usage: prog tcp <host>"
+
+
+def test_unmatched_message_is_human_readable_for_unknown_long_option_with_value():
+    with raises(DocoptExit, match=r"Error: unexpected arguments: --spam=eggs"):
+        docopt("Usage: prog", "--spam=eggs")
+
+
+def test_unmatched_message_uses_space_for_short_option_with_value():
+    with raises(DocoptExit, match=r"Error: unexpected arguments: -o val"):
+        # The docstring isn't `prog [options]` so `-o val` is unexpected.
+        docopt("Usage: prog\nOptions: -o ARG", "-o val")
+
+
+def test_unmatched_message_quotes_values_with_spaces_and_empty_strings():
+    with raises(DocoptExit) as err:
+        docopt("Usage: prog", ["foo bar", ""])
+    assert str(err.value).splitlines()[0] == "Error: unexpected arguments: 'foo bar' ''"
 
 
 def test_formal_usage():
@@ -542,16 +571,14 @@ def test_long_options_error_handling():
     #        docopt('Usage: prog --non-existent')
     with raises(
         DocoptExit,
-        match=r"Warning: found unmatched \(duplicate\?\) arguments.*--non-existent",
+        match=r"Error: unexpected arguments: --non-existent",
     ) as err:
         docopt("Usage: prog", "--non-existent")
     exc = err.value
     assert exc.collected == []
     assert exc.left == [_Option(None, "--non-existent", 0, True)]
 
-    with raises(
-        DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*--ver\b"
-    ) as err:
+    with raises(DocoptExit, match=r"Error: unexpected arguments: --ver\b") as err:
         docopt(
             "Usage: prog [--version --verbose]\nOptions: --version\n --verbose",
             "--ver",
@@ -584,9 +611,7 @@ def test_short_options_error_handling():
     with raises(DocoptLanguageError, match=r"-x is specified ambiguously 2 times"):
         docopt("Usage: prog -x\nOptions: -x  this\n -x  that")
 
-    with raises(
-        DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*-x"
-    ) as err:
+    with raises(DocoptExit, match=r"Error: unexpected arguments: -x") as err:
         docopt("Usage: prog", "-x")
     exc = err.value
     assert exc.collected == []
@@ -621,7 +646,7 @@ def test_allow_double_dash():
         "--": False,
     }
     with raises(
-        DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*-o\b"
+        DocoptExit, match=r"Error: unexpected arguments: -o\b"
     ) as err:  # "--" is not allowed; FIXME?
         docopt("usage: prog [-o] <arg>\noptions:-o", "-- -o")
     exc = err.value
@@ -671,7 +696,7 @@ def test_docopt(capsys: pytest.CaptureFixture):
 
     with raises(
         DocoptExit,
-        match=r"Warning: found unmatched \(duplicate\?\) arguments.*output\.py",
+        match=r"Error: unexpected arguments: output\.py",
     ) as err:
         docopt(doc, "-v input.py output.py")
     exc = err.value
@@ -683,7 +708,7 @@ def test_docopt(capsys: pytest.CaptureFixture):
 
     with raises(
         DocoptExit,
-        match=r"Warning: found unmatched \(duplicate\?\) arguments.*--fake",
+        match=r"Error: unexpected arguments: --fake",
     ) as err:
         docopt(doc, "--fake")
     exc = err.value
@@ -789,9 +814,7 @@ def test_count_multiple_flags():
     assert docopt("usage: prog [-vv]", "") == {"-v": 0}
     assert docopt("usage: prog [-vv]", "-v") == {"-v": 1}
     assert docopt("usage: prog [-vv]", "-vv") == {"-v": 2}
-    with raises(
-        DocoptExit, match=r"Warning: found unmatched \(duplicate\?\) arguments.*'-v'"
-    ) as err:
+    with raises(DocoptExit, match=r"Error: unexpected arguments: -v") as err:
         docopt("usage: prog [-vv]", "-vvv")
     exc = err.value
     assert exc.collected == [_Option("-v", None, 0, 2)]
@@ -803,13 +826,13 @@ def test_count_multiple_flags():
 
 
 def test_any_options_parameter():
-    with raises(
-        DocoptExit,
-        match=r"Warning: found unmatched \(duplicate\?\) arguments"
-        r".*-f.*-o.*-o.*--bar.*--spam.*eggs",
-    ) as err:
+    with raises(DocoptExit) as err:
         docopt("usage: prog [options]", "-foo --bar --spam=eggs")
     exc = err.value
+    assert (
+        str(exc).splitlines()[0]
+        == "Error: unexpected arguments: -f -o -o --bar --spam=eggs"
+    )
     assert exc.collected == []
     assert exc.left == [
         _Option("-f", None, 0, True),
@@ -822,13 +845,10 @@ def test_any_options_parameter():
     #    assert docopt('usage: prog [options]', '-foo --bar --spam=eggs',
     #                  any_options=True) == {'-f': True, '-o': 2,
     #                                         '--bar': True, '--spam': 'eggs'}
-    with raises(
-        DocoptExit,
-        match=r"Warning: found unmatched \(duplicate\?\) arguments"
-        r".*--foo.*--bar.*--bar",
-    ) as err:
+    with raises(DocoptExit) as err:
         docopt("usage: prog [options]", "--foo --bar --bar")
     exc = err.value
+    assert str(exc).splitlines()[0] == "Error: unexpected arguments: --foo --bar --bar"
     assert exc.collected == []
     assert exc.left == [
         _Option(None, "--foo", 0, True),
@@ -838,13 +858,13 @@ def test_any_options_parameter():
 
     #    assert docopt('usage: prog [options]', '--foo --bar --bar',
     #                  any_options=True) == {'--foo': True, '--bar': 2}
-    with raises(
-        DocoptExit,
-        match=r"Warning: found unmatched \(duplicate\?\) arguments"
-        r".*--bar.*--bar.*--bar.*-f.*-f.*-f.*-f",
-    ) as err:
+    with raises(DocoptExit) as err:
         docopt("usage: prog [options]", "--bar --bar --bar -ffff")
     exc = err.value
+    assert (
+        str(exc).splitlines()[0]
+        == "Error: unexpected arguments: --bar --bar --bar -f -f -f -f"
+    )
     assert exc.collected == []
     assert exc.left == [
         _Option(None, "--bar", 0, True),
@@ -858,13 +878,13 @@ def test_any_options_parameter():
 
     #    assert docopt('usage: prog [options]', '--bar --bar --bar -ffff',
     #                  any_options=True) == {'--bar': 3, '-f': 4}
-    with raises(
-        DocoptExit,
-        match=r"Warning: found unmatched \(duplicate\?\) arguments"
-        r".*--long.*arg.*--long.*another",
-    ) as err:
+    with raises(DocoptExit) as err:
         docopt("usage: prog [options]", "--long=arg --long=another")
     exc = err.value
+    assert (
+        str(exc).splitlines()[0]
+        == "Error: unexpected arguments: --long=arg --long=another"
+    )
     assert exc.collected == []
     assert exc.left == [
         _Option(None, "--long", 1, "arg"),
