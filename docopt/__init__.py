@@ -25,6 +25,7 @@ Contributors (roughly in chronological order):
 from __future__ import annotations
 
 import re
+import shlex
 import sys
 from typing import Any
 from typing import Callable
@@ -718,6 +719,25 @@ def _parse_argv(
     return parsed
 
 
+def _format_unexpected_item(item: _Pattern) -> str:
+    if isinstance(item, _Option):
+        option_name = item.name
+        if option_name is None:
+            return shlex.quote(str(item.value))
+        if item.argcount and isinstance(item.value, str):
+            if item.longer:
+                return f"{option_name}={shlex.quote(item.value)}"
+            return f"{option_name} {shlex.quote(item.value)}"
+        return option_name
+    if isinstance(item, _Argument):
+        return shlex.quote(str(item.value))
+    return str(item.name)
+
+
+def _format_unexpected(left: list[_Pattern]) -> str:
+    return " ".join(_format_unexpected_item(item) for item in left)
+
+
 class _DocSections(NamedTuple):
     before_usage: str
     usage_header: str
@@ -925,9 +945,14 @@ def docopt(
     matched, left, collected = pattern.fix().match(parsed_arg_vector)
     if matched and left == []:
         return ParsedOptions((a.name, a.value) for a in (pattern.flat() + collected))
-    if left:
+    if matched:
+        # The pattern matched but argv had tokens left over, so the extras
+        # really are unexpected. When the pattern failed to match, `left` is
+        # the whole argv (including tokens the usage does expect), so calling
+        # it "unexpected" would misdiagnose e.g. a missing required argument;
+        # fall through to the plain usage message instead.
         raise DocoptExit(
-            f"Warning: found unmatched (duplicate?) arguments {left}",
+            f"Error: unexpected arguments: {_format_unexpected(left)}",
             collected=collected,
             left=left,
         )
