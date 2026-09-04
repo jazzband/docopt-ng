@@ -304,8 +304,12 @@ class _Option(_LeafPattern):
                 longer = s
             elif s.startswith("-"):
                 short = s
-            else:
+            elif s.startswith("<") and s.endswith(">") or s.isupper():
                 argcount = 1
+            # else: a stray word here means the two-space separator before
+            # the free-text description is missing (see issue #44), so this
+            # isn't a real argument placeholder and shouldn't be treated as
+            # one; leave argcount alone rather than misreading it.
         if argcount:
             matched = re.findall(r"\[default: (.*)\]", description, flags=re.I)
             value = matched[0] if matched else None

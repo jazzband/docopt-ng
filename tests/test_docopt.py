@@ -78,6 +78,20 @@ def test_option():
         "-h", None, 1, "2"
     )
 
+    # Regression test for #44: a missing two-space separator before a
+    # free-text description used to make every plain word in that
+    # description look like an argument placeholder, wrongly setting
+    # argcount to 1 and corrupting the pattern parser downstream. A
+    # description word only counts as a placeholder if it actually looks
+    # like one (<angle-bracket> form or ALL-CAPS), matching how the Usage
+    # section itself recognizes arguments.
+    assert _Option.parse("-s --long Some description for this option.") == _Option(
+        "-s", "--long"
+    )
+    assert _Option.parse("-c <cVar> some words with no gap") == _Option(
+        "-c", None, 1
+    )
+
 
 def test_option_name():
     assert _Option("-h", None).name == "-h"
@@ -1069,8 +1083,14 @@ option_examples: Sequence[tuple[str, Sequence[_Option]]] = [
             the default of --option1, defined above.
 
             But if we happen to start a line of our prose with an option, like
-            -b then we are unfortunately defining an option. And "then" acts as
-            an argument for -b, so it accepts an argument.
+            -b then we are unfortunately defining an option. The word right
+            after it, "then", used to get misread as an argument placeholder
+            too, purely because it wasn't preceded by a real two-space gap.
+            That's fixed now (see issue #44), since only an <angle-bracket>
+            or ALL-CAPS word is treated as one, matching how the Usage
+            section already recognizes arguments. So -b is still picked up
+            as a stray option here, but no longer swallows "then" as its
+            argument.
 
             Options are also allowed to start on the same line as an option
             heading, so this is an option:
@@ -1085,7 +1105,7 @@ option_examples: Sequence[tuple[str, Sequence[_Option]]] = [
         """,
         [
             _Option(None, "--option1", 1, "42"),
-            _Option("-b", None, 1, None),
+            _Option("-b", None, 0, False),
             _Option(None, "--option2", 0, False),
             _Option(None, "--option3", 0, False),
             _Option("-o", "--option4", 1, None),
