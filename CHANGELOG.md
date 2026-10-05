@@ -4,6 +4,9 @@
 
 ### Fixed
 
+- Report missing option arguments at usage-grammar boundaries with a helpful
+  two-space Options-description hint when a flag was intended.
+
 - Fixed repeated option values across usage alternatives: matching one usage
   alternative could mutate a parsed option object shared with another
   alternative, so a failed branch attempt leaked value changes into later

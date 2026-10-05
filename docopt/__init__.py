@@ -490,6 +490,19 @@ def _parse_longer(
             if value is None:
                 if tokens.current() in [None, "--"]:
                     raise tokens.error("%s requires argument" % o.longer)
+                if tokens.error is DocoptLanguageError and tokens.current() in (
+                    "(",
+                    ")",
+                    "[",
+                    "]",
+                    "|",
+                    "...",
+                ):
+                    raise tokens.error(
+                        f"{o.longer} requires argument; use two spaces to "
+                        "separate an option specification from its description "
+                        "if this was intended to be a flag"
+                    )
                 value = tokens.move()
         if tokens.error is DocoptExit:
             o.value = value if value is not None else True
@@ -596,6 +609,19 @@ def _parse_shorts(
                 if left == "":
                     if current_token is None or current_token == "--":
                         raise tokens.error("%s requires argument" % short)
+                    if tokens.error is DocoptLanguageError and current_token in (
+                        "(",
+                        ")",
+                        "[",
+                        "]",
+                        "|",
+                        "...",
+                    ):
+                        raise tokens.error(
+                            f"{short} requires argument; use two spaces to "
+                            "separate an option specification from its description "
+                            "if this was intended to be a flag"
+                        )
                     else:
                         value = tokens.move()
                 else:

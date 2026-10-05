@@ -561,7 +561,10 @@ def test_long_options_error_handling():
     assert exc.left == [_Option(None, "--ver", 0, True)]
 
     # --long is missing ARG in usage
-    with raises(DocoptLanguageError, match=r"unmatched '\('"):
+    with raises(
+        DocoptLanguageError,
+        match=r"--long requires argument; use two spaces",
+    ):
         docopt("Usage: prog --long\nOptions: --long ARG")
 
     with raises(DocoptExit, match=r"--long requires argument") as err:
@@ -952,6 +955,44 @@ def test_issue_71_double_dash_is_not_a_valid_option_argument():
     exc = err.value
     assert exc.collected == []
     assert exc.left == []
+
+
+@pytest.mark.parametrize("ending", ["", "\n", "\r\n"])
+@pytest.mark.parametrize("option", ["-s", "--long"])
+def test_issue_44_reports_missing_usage_argument_at_grammar_boundary(option, ending):
+    doc = (
+        "Usage: prog ( -s | --long )\n\n"
+        "Options:\n"
+        "    -s --long Some description\n"
+        "    continued description"
+    )
+    doc = doc.replace("( -s | --long )", f"( {option} )") + ending
+    with raises(
+        DocoptLanguageError, match=rf"{re.escape(option)} requires argument"
+    ) as err:
+        docopt(doc, default_help=False)
+    assert "two spaces" in str(err.value)
+
+
+@pytest.mark.parametrize("option", ["-l", "--long"])
+def test_issue_44_reports_bracket_as_usage_grammar_boundary(option):
+    doc = f"Usage: prog {option} [foo]\nOptions: {option} ARG  Description.\n"
+    with raises(
+        DocoptLanguageError,
+        match=rf"{re.escape(option)} requires argument; use two spaces",
+    ):
+        docopt(doc, default_help=False)
+
+
+def test_issue_44_preserves_real_unmatched_parenthesis_diagnostic():
+    with raises(DocoptLanguageError, match=r"unmatched '\('"):
+        docopt("Usage: prog (command", default_help=False)
+
+
+@pytest.mark.parametrize("value", ["|", ")", "]", "(", "...", "["])
+def test_issue_44_preserves_punctuation_as_argv_value(value):
+    doc = "Usage: prog --long VALUE\nOptions: --long VALUE  Description.\n"
+    assert docopt(doc, ["--long", value], default_help=False)["--long"] == value
 
 
 option_examples: Sequence[tuple[str, Sequence[_Option]]] = [
