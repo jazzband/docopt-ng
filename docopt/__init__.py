@@ -298,13 +298,15 @@ class _Option(_LeafPattern):
         options, description = re.split(
             r"(?:  )|$", option_description.strip(), flags=re.M, maxsplit=1
         )
-        options = options.replace(",", " ").replace("=", " ")
+        options = options.replace(",", " ")
         for s in options.split():
             if s.startswith("--"):
-                longer = s
+                longer, _, argname = s.partition("=")
+                argcount = 1 if argname else argcount
             elif s.startswith("-"):
-                short = s
-            else:
+                short, _, argname = s.partition("=")
+                argcount = 1 if argname else argcount
+            elif s.startswith("<") or s.isupper():
                 argcount = 1
         if argcount:
             matched = re.findall(r"\[default: (.*)\]", description, flags=re.I)
