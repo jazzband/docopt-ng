@@ -79,6 +79,36 @@ def test_option():
     )
 
 
+def test_issue_44_missing_two_space_separator():
+    # https://github.com/jazzband/docopt-ng/issues/44
+    # A missing two-space separator used to turn description words into
+    # argument placeholders, corrupting the option and derailing pattern
+    # parsing with a misleading "unmatched '('" error. Only an
+    # <angle-bracket> or ALL-CAPS word is an argument placeholder, matching
+    # how the usage pattern itself recognizes arguments.
+    assert _Option.parse("-s --long Some description for this option.") == _Option(
+        "-s", "--long"
+    )
+    assert _Option.parse("-h --help Show this help.") == _Option("-h", "--help")
+    # Conventional placeholders and explicit = still mark the argument
+    assert _Option.parse("-n COUNT") == _Option("-n", None, 1)
+    assert _Option.parse("-c <cVar>") == _Option("-c", None, 1)
+    assert _Option.parse("--format=json") == _Option(None, "--format", 1)
+
+
+def test_issue_44_docopt_end_to_end():
+    doc = """Command
+
+    Usage:
+        cli_tool.py (-s | --long)
+
+    Options:
+        -s --long Some description for this option.
+    """
+    assert docopt(doc, ["--long"]) == {"--long": True}
+    assert docopt(doc, ["-s"]) == {"--long": True}
+
+
 def test_option_name():
     assert _Option("-h", None).name == "-h"
     assert _Option("-h", "--help").name == "--help"
@@ -1069,8 +1099,10 @@ option_examples: Sequence[tuple[str, Sequence[_Option]]] = [
             the default of --option1, defined above.
 
             But if we happen to start a line of our prose with an option, like
-            -b then we are unfortunately defining an option. And "then" acts as
-            an argument for -b, so it accepts an argument.
+            -b then we are unfortunately defining an option. The word right
+            after it, "then", is not an argument placeholder (only an
+            <angle-bracket> or ALL-CAPS word is, see issue #44), so -b no
+            longer accepts an argument.
 
             Options are also allowed to start on the same line as an option
             heading, so this is an option:
@@ -1085,7 +1117,7 @@ option_examples: Sequence[tuple[str, Sequence[_Option]]] = [
         """,
         [
             _Option(None, "--option1", 1, "42"),
-            _Option("-b", None, 1, None),
+            _Option("-b", None, 0, False),
             _Option(None, "--option2", 0, False),
             _Option(None, "--option3", 0, False),
             _Option("-o", "--option4", 1, None),
